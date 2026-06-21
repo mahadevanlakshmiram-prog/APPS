@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Lakshmiram's Retirement Planner: Solver + Charts + Scenarios (₹ INR)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, 'Segoe UI', 'Inter', 'Roboto', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(145deg, #eef2f7 0%, #dfe6ed 100%);
+      margin: 0;
+      padding: 24px 20px;
+    }
+
+    .app-container {
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(2px);
+      border-radius: 2rem;
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.15);
+      padding: 1.6rem 2rem;
+      margin-bottom: 2rem;
+      transition: 0.2s;
+    }
+
+    .main-title {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #1a4d6b, #2c7a5e);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin: 0 0 0.5rem 0;
+      text-align: center;
+    }
+
+    .contact-info {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #2c6e9d;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px dashed #cbd5e1;
+    }
+
+    .instructions {
+      background: #eef2f7;
+      border-radius: 1rem;
+      padding: 1rem 1.5rem;
+      margin: 1rem 0 1.5rem 0;
+    }
+
+    .instructions p {
+      font-weight: 700;
+      color: #1f4e5e;
+      margin: 0 0 0.5rem 0;
+      font-size: 0.9rem;
+    }
+
+    .instructions ul {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    .instructions li {
+      font-size: 0.8rem;
+      color: #334155;
+      margin: 0.3rem 0;
+      line-height: 1.4;
+    }
+
+    .instructions li strong {
+      color: #1f4e5e;
+    }
+
+    .investment-note {
+      background: #e6f4ea;
+      border-left: 4px solid #2c9d8f;
+      padding: 0.5rem 1rem;
+      margin-top: 0.5rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      color: #2c5a6e;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 1.2rem 1.8rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .input-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .input-field label {
+      font-weight: 700;
+      color: #1f4e5e;
+      font-size: 0.85rem;
+      letter-spacing: 0.3px;
+    }
+
+    .input-field input {
+      background: white;
+      border: 1px solid #cbd5e1;
+      border-radius: 1.2rem;
+      padding: 0.7rem 1rem;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: 0.2s;
+      outline: none;
+    }
+
+    .input-field input:focus {
+      border-color: #2c9d8f;
+      box-shadow: 0 0 0 3px rgba(44, 157, 143, 0.2);
+    }
+
+    .hint {
+      font-size: 0.7rem;
+      color: #5f6c7a;
+      margin-top: 0.2rem;
+      line-height: 1.3;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin: 0.5rem 0 0.5rem;
+    }
+
+    button {
+      background: #2c9d8f;
+      border: none;
+      padding: 0.85rem 1.8rem;
+      font-size: 1rem;
+      font-weight: bold;
+      color: white;
+      border-radius: 3rem;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    button:hover {
+      background: #217a6e;
+      transform: translateY(-2px);
+    }
+
+    .btn-solver {
+      background: #2c6e9d;
+    }
+
+    .btn-solver:hover {
+      background: #1f557a;
+    }
+
+    .solver-result {
+      background: #e6f4ea;
+      border-left: 6px solid #2c9d8f;
+      padding: 1rem 1.5rem;
+      border-radius: 1.5rem;
+      margin-top: 1.2rem;
+      font-weight: 500;
+    }
+
+    .solver-result .solver-explanation {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid #cbd5e1;
+      font-size: 0.8rem;
+      color: #2c5a6e;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0.5rem 0 0.8rem 0;
+      color: #1f4e6e;
+      border-bottom: 3px solid #2c9d8f;
+      display: inline-block;
+      padding-right: 1rem;
+    }
+
+    .scenario-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.85rem;
+    }
+
+    .scenario-table th {
+      background: #1f4e6e;
+      color: white;
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .scenario-table td {
+      padding: 8px 8px;
+      text-align: center;
+      border-bottom: 1px solid #d4dee5;
+    }
+
+    .scenario-table tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    .scenario-table tr.highlight {
+      background-color: #e6f4ea;
+      font-weight: 600;
+    }
+
+    .scenario-table .positive {
+      color: #2c9d8f;
+      font-weight: 600;
+    }
+
+    .scenario-table .negative {
+      color: #c2410c;
+      font-weight: 600;
+    }
+
+    .scenario-note {
+      font-size: 0.75rem;
+      color: #5f6c7a;
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    .exhaustion-warning {
+      background: #fff3e0;
+      border-left: 6px solid #c2410c;
+      padding: 0.8rem 1.2rem;
+      margin: 1rem 0 0.5rem 0;
+      border-radius: 1rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #9a3412;
+    }
+
+    .exhaustion-warning .warning-age {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #c2410c;
+    }
+
+    .chart-container {
+      margin: 1.5rem 0;
+      padding: 1rem;
+      background: white;
+      border-radius: 1.5rem;
+      position: relative;
+    }
+
+    canvas {
+      max-height: 400px;
+      width: 100%;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      overflow-y: visible;
+      margin: 1.2rem 0 1.8rem;
+      border-radius: 1.4rem;
+      background: #ffffffcc;
+      padding: 0.2rem 0;
+      position: relative;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+
+    .table-wrapper::after {
+      content: '← scroll →';
+      position: absolute;
+      bottom: 5px;
+      right: 10px;
+      font-size: 0.7rem;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 2px 8px;
+      border-radius: 20px;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .table-wrapper.no-scroll::after {
+      display: none;
+    }
+
+    table {
+      width: 100%;
+      min-width: 800px;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      white-space: nowrap;
+    }
+
+    th {
+      background: #1f4e6e;
+      color: white;
+      padding: 12px 10px;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      text-align: center;
+    }
+
+    td {
+      padding: 10px 10px;
+      text-align: right;
+      border-bottom: 1px solid #d4dee5;
+    }
+
+    td:first-child,
+    th:first-child {
+      position: sticky;
+      left: 0;
+      background: #1f4e6e;
+      color: white;
+      font-weight: 600;
+    }
+
+    td:first-child {
+      background: #f8fafc;
+      font-weight: 600;
+      color: #1f4e6e;
+    }
+
+    tr:nth-child(even) td:first-child {
+      background: #f8fafc;
+    }
+
+    tr:nth-child(odd) td:first-child {
+      background: white;
+    }
+
+    .money {
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+    }
+
+    .negative-balance {
+      background-color: #fee2e2;
+      color: #b91c1c;
+      font-weight: bold;
+    }
+
+    .summary-box {
+      background: #eef2f7;
+      border-radius: 1.5rem;
+      padding: 1rem 1.5rem;
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .summary-item {
+      background: white;
+      border-radius: 2rem;
+      padding: 0.6rem 1.2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      font-size: 0.9rem;
+    }
+
+    .badge {
+      font-weight: 800;
+      color: #2c9d8f;
+    }
+
+    .warning {
+      color: #c2410c;
+      font-weight: bold;
+    }
+
+    .success {
+      color: #2c9d8f;
+      font-weight: bold;
+    }
+
+    .simple-footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #4f6f8a;
+      margin-top: 1rem;
+      padding: 1rem;
+      border-top: 1px solid #cbd5e1;
+    }
+
+    .simple-footer p {
+      margin: 0.2rem 0;
+    }
+
+    .footer-contact {
+      margin-top: 0.5rem;
+      font-size: 0.7rem;
+      color: #2c6e9d;
+    }
+
+    /* Disclaimer Modal Styles */
+    .disclaimer-modal {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 100000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .disclaimer-content {
+      background: white;
+      max-width: 550px;
+      width: 90%;
+      border-radius: 2rem;
+      padding: 2rem;
+      text-align: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .disclaimer-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .disclaimer-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #c2410c;
+      margin-bottom: 1rem;
+    }
+
+    .disclaimer-text {
+      color: #334155;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    .disclaimer-text ul {
+      text-align: left;
+      margin: 1rem 0;
+      padding-left: 1.5rem;
+    }
+
+    .disclaimer-text li {
+      margin: 0.5rem 0;
+    }
+
+    .accept-btn {
+      background: #2c9d8f;
+      padding: 0.9rem 2rem;
+      font-size: 1.1rem;
+      border-radius: 3rem;
+      width: 100%;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+
+      button,
+      .button-group {
+        display: none !important;
+      }
+
+      .card {
+        box-shadow: none;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      #chartsCard,
+      #incomeExpenseCard {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .chart-container {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      canvas {
+        max-height: 280px !important;
+        width: 100% !important;
+      }
+
+      .table-wrapper {
+        overflow-x: visible;
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+
+      .table-wrapper::after {
+        display: none;
+      }
+
+      table {
+        min-width: auto;
+        width: 100%;
+        white-space: normal;
+      }
+
+      th,
+      td {
+        white-space: normal;
+        word-break: break-word;
+      }
+
+      td:first-child,
+      th:first-child {
+        position: static;
+      }
+
+      tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .summary-box {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .exhaustion-warning {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .card {
+        padding: 1rem;
+      }
+
+      .main-title {
+        font-size: 1.5rem;
+      }
+
+      th,
+      td {
+        padding: 8px 6px;
+        font-size: 0.75rem;
+      }
+
+      .money {
+        font-size: 0.7rem;
+      }
+
+      .table-wrapper::after {
+        font-size: 0.6rem;
+        bottom: 2px;
+        right: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- DISCLAIMER MODAL -->
+  <div id="disclaimerModal" class="disclaimer-modal">
+    <div class="disclaimer-content">
+      <div class="disclaimer-icon">⚠️</div>
+      <div class="disclaimer-title">Important Disclaimer</div>
+      <div class="disclaimer-text">
+        <p><strong>Lakshmiram's Retirement Planner is a projection tool, not financial advice.</strong></p>
+        <ul>
+          <li>All projections are estimates based on the inputs you provide</li>
+          <li>Actual market returns may differ significantly from assumed rates</li>
+          <li>Inflation, tax rates, and personal circumstances vary</li>
+          <li>Past performance does not guarantee future returns</li>
+          <li>Consult a SEBI-registered financial advisor before making investment decisions</li>
+        </ul>
+        <p style="font-size: 0.85rem; color: #64748b; margin-top: 1rem;">By using this tool, you acknowledge that the creators are not liable for any financial decisions made based on these projections.</p>
+      </div>
+      <button id="acceptDisclaimerBtn" class="accept-btn">✓ I Understand & Continue</button>
+    </div>
+  </div>
+
+  <div class="app-container" id="reportContainer" style="display: none;">
+    <div class="card">
+      <div class="main-title">LAKSHMIRAM'S RETIREMENT PLANNER</div>
+
+      <div class="contact-info">
+        📧 mahadevanlakshmiram@gmail.com &nbsp;|&nbsp; 📞 8072955665
+      </div>
+
+      <div class="instructions">
+        <p>📋 How to use:</p>
+        <ul>
+          <li>Enter your <strong>current age</strong> and <strong>retirement age</strong> (when you plan to stop working)</li>
+          <li>Add your <strong>current savings</strong> (nest egg), <strong>monthly income</strong> and <strong>monthly expenses</strong></li>
+          <li>Set expected <strong>inflation</strong> (6% is typical for India) and expected <strong>investment returns</strong>:
+            <div class="investment-note">
+              💡 <strong>Understanding Investment Returns:</strong><br>
+              • <strong>Risk-free returns:</strong> RBI bond after-tax returns of <strong>5.6%</strong> (8% × 0.7) is taken as a proxy for risk-free returns.<br>
+              • <strong>Risk capital returns:</strong> Long-term NIFTY Index returns of <strong>11%</strong> is assumed for equity/risk capital.<br>
+              • <strong>Example:</strong> If your portfolio comprises 50% risk-free and 50% risky assets, your portfolio returns would be estimated at <strong>8.3%</strong> average (0.5 × 5.6% + 0.5 × 11%).<br>
+              • You can estimate returns for any other combination of risk-free and risky assets based on your asset allocation.
+            </div>
+          </li>
+          <li>Choose <strong>life expectancy</strong> (default 100 years) to see if your corpus lasts your lifetime</li>
+          <li>Click <strong>"Calculate"</strong> to see projections with your current income growth rate, or <strong>"Solve"</strong> to find the exact rate needed</li>
+        </ul>
+      </div>
+
+      <div class="input-grid">
+        <div class="input-field"><label>📍 Current age (years)</label><input type="number" id="currAge" value="30" step="1" min="18">
+          <div class="hint">Your age today</div>
+        </div>
+        <div class="input-field"><label>🎯 Target retirement age</label><input type="number" id="retAge" value="60" step="1" min="20">
+          <div class="hint">When you stop working</div>
+        </div>
+        <div class="input-field"><label>💰 Nest egg at start (current savings ₹)</label><input type="number" id="startingNestEgg" value="1000000" step="100000">
+          <div class="hint">Existing retirement/investment savings today (₹)</div>
+        </div>
+        <div class="input-field"><label>💵 Monthly income (today's ₹)</label><input type="number" id="monthlyIncome" value="200000" step="1000">
+          <div class="hint">Current monthly earnings (₹)</div>
+        </div>
+        <div class="input-field"><label>📆 Monthly expenses (today's ₹)</label><input type="number" id="monthlyExpenses" value="150000" step="1000">
+          <div class="hint">Current monthly spending (₹)</div>
+        </div>
+        <div class="input-field"><label>📈 Inflation (% per year)</label><input type="number" id="inflation" value="6.0" step="0.1">
+          <div class="hint">Typical Indian inflation rate (5-7%)</div>
+        </div>
+        <div class="input-field"><label>📊 ROI before retirement (% per year)</label><input type="number" id="roiPre" value="8.3" step="0.2">
+          <div class="hint">Portfolio returns before retirement (default 8.3% for 50:50 mix)</div>
+        </div>
+        <div class="input-field"><label>🏦 ROI after retirement (% per year)</label><input type="number" id="roiPost" value="6.0" step="0.2">
+          <div class="hint">Conservative returns post-retirement (default 6% for debt-heavy mix)</div>
+        </div>
+        <div class="input-field"><label>⏳ Life expectancy (years, total age)</label><input type="number" id="lifeExp" value="100" step="1">
+          <div class="hint">Age until funds should last (default 100)</div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button id="calcBtn">📊 Calculate with current income growth</button>
+        <button id="solverBtn" class="btn-solver">🔍 Solve for required income growth rate</button>
+      </div>
+
+      <div id="solverOutput" class="solver-result" style="display: none;"></div>
+
+      <div class="input-field" style="margin-top: 12px;">
+        <label>📈 Manual income growth rate (% per year) — used when pressing "Calculate"</label>
+        <input type="number" id="manualGrowthRate" value="8.0" step="0.1">
+        <div class="hint">Solver will automatically update this field with the found rate.</div>
+      </div>
+    </div>
+
+    <!-- SCENARIO TABLE CARD -->
+    <div class="card" id="scenarioCard" style="display: none;">
+      <div class="section-title">📊 Asset Allocation Scenarios - Required Income Growth Rate</div>
+      <div class="table-wrapper" id="scenarioTableWrapper">
+        <table class="scenario-table" id="scenarioTable">
+          <thead>
+            <tr>
+              <th>NIFTY Index %</th>
+              <th>RBI Bonds %</th>
+              <th>Portfolio Return (Pre-Retirement)</th>
+              <th>Portfolio Return (Post-Retirement)</th>
+              <th>Required Income Growth Rate</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="scenarioTbody"></tbody>
+        </table>
+      </div>
+      <div class="scenario-note">
+        💡 <strong>How to read:</strong> This table shows the required income growth rate for different asset allocations.
+        The <strong>bold</strong> row indicates your current asset allocation setting.
+        Higher required growth rate means you need more income growth to sustain retirement.
+        For conservative investors, 5.6% (RBI bonds) gives the highest security; for growth investors, higher NIFTY allocation may reduce required growth rate but increases risk.
+      </div>
+      <div id="scenarioExhaustionWarning" class="exhaustion-warning" style="display: none;"></div>
+    </div>
+
+    <div class="card" id="chartsCard" style="display: none;">
+      <div class="section-title">📊 Portfolio Balance Over Time</div>
+      <div id="exhaustionWarning" class="exhaustion-warning" style="display: none;"></div>
+      <div class="chart-container" id="balanceChartContainer">
+        <canvas id="balanceChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card" id="incomeExpenseCard" style="display: none;">
+      <div class="section-title">📊 Monthly Income vs Expenses (Working Years)</div>
+      <div class="chart-container" id="incomeExpenseChartContainer">
+        <canvas id="incomeExpenseChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card" id="accumCard" style="display: none;">
+      <div class="section-title">📈 Savings accumulation (working years) — ₹ INR</div>
+      <div class="table-wrapper" id="accumTableWrapper">
+        <table id="accumTable">
+          <thead>
+            <tr>
+              <th>Age</th>
+              <th>Year</th>
+              <th>Start Balance (₹)</th>
+              <th>Monthly Savings (₹)</th>
+              <th>Yearly Savings (₹)</th>
+              <th>Investment Return (₹)</th>
+              <th>End Balance (₹)</th>
+            </tr>
+          </thead>
+          <tbody id="accumTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" id="spendCard" style="display: none;">
+      <div class="section-title">📉 Retirement spending & balance — ₹ INR</div>
+      <div class="table-wrapper" id="spendTableWrapper">
+        <table id="spendTable">
+          <thead>
+            <tr>
+              <th>Age</th>
+              <th>Year</th>
+              <th>Start Balance (₹)</th>
+              <th>Annual Expenses (₹)</th>
+              <th>Monthly Expenses (₹)</th>
+              <th>Portfolio Growth (₹)</th>
+              <th>End Balance (₹)</th>
+            </tr>
+          </thead>
+          <tbody id="spendTbody"></tbody>
+        </table>
+      </div>
+      <div class="summary-box" id="summaryBox"></div>
+    </div>
+
+    <div class="simple-footer">
+      <p>📈 Expenses grow at set inflation rate.</p>
+      <p>⚠️ This is a projection tool, not financial advice.</p>
+      <div class="footer-contact">
+        📧 mahadevanlakshmiram@gmail.com &nbsp;|&nbsp; 📞 8072955665
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const calcBtn = document.getElementById('calcBtn');
+      const solverBtn = document.getElementById('solverBtn');
+      const accumCard = document.getElementById('accumCard');
+      const spendCard = document.getElementById('spendCard');
+      const chartsCard = document.getElementById('chartsCard');
+      const incomeExpenseCard = document.getElementById('incomeExpenseCard');
+      const scenarioCard = document.getElementById('scenarioCard');
+      const accumTbody = document.getElementById('accumTbody');
+      const spendTbody = document.getElementById('spendTbody');
+      const summaryBox = document.getElementById('summaryBox');
+      const solverOutputDiv = document.getElementById('solverOutput');
+      const manualGrowthInput = document.getElementById('manualGrowthRate');
+      const reportContainer = document.getElementById('reportContainer');
+      const disclaimerModal = document.getElementById('disclaimerModal');
+      const exhaustionWarningDiv = document.getElementById('exhaustionWarning');
+      const scenarioTbody = document.getElementById('scenarioTbody');
+      const scenarioExhaustionWarning = document.getElementById('scenarioExhaustionWarning');
+
+      const RISK_FREE_RETURN = 5.6;
+      const RISKY_RETURN = 11.0;
+
+      // Usage counter — fires silently, never blocks or breaks the UI if it fails
+      function pingUsageCounter(action) {
+        try {
+          fetch(`https://api.counterapi.dev/v1/lakshmiram-retirement-planner/${action}/up`).catch(() => {});
+        } catch (e) {
+          // ignore — counter is best-effort only
+        }
+      }
+
+      let balanceChart = null;
+      let incomeExpenseChart = null;
+
+      function formatMoney(value) {
+        if (isNaN(value) || !isFinite(value)) return '₹0';
+        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0,
+            maximumFractionDigits: 0 }).format(Math.abs(value));
+      }
+
+      function getInputs() {
+        const currAge = parseInt(document.getElementById('currAge').value, 10);
+        const retAge = parseInt(document.getElementById('retAge').value, 10);
+        const startingNestEgg = parseFloat(document.getElementById('startingNestEgg').value);
+        const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value);
+        const monthlyExpensesBase = parseFloat(document.getElementById('monthlyExpenses').value);
+        const inflationPct = parseFloat(document.getElementById('inflation').value);
+        const roiPrePct = parseFloat(document.getElementById('roiPre').value);
+        const roiPostPct = parseFloat(document.getElementById('roiPost').value);
+        const lifeExpectancy = parseFloat(document.getElementById('lifeExp').value);
+        let incomeGrowthPct = parseFloat(manualGrowthInput.value);
+
+        if (isNaN(currAge) || currAge < 18) throw new Error("Current age must be ≥18");
+        if (isNaN(retAge) || retAge <= currAge) throw new Error("Retirement age must be > current age");
+        if (isNaN(startingNestEgg) || startingNestEgg < 0) throw new Error("Starting nest egg must be ≥0");
+        if (isNaN(monthlyIncome) || monthlyIncome < 0) throw new Error("Monthly income must be ≥0");
+        if (isNaN(monthlyExpensesBase) || monthlyExpensesBase < 0) throw new Error("Monthly expenses ≥0");
+        if (isNaN(inflationPct) || inflationPct < 0) throw new Error("Inflation ≥0");
+        if (isNaN(roiPrePct) || roiPrePct < -20) throw new Error("Invalid ROI pre-retirement");
+        if (isNaN(roiPostPct) || roiPostPct < -20) throw new Error("Invalid ROI post-retirement");
+        if (isNaN(lifeExpectancy) || lifeExpectancy <= retAge) throw new Error(
+          "Life expectancy must be greater than retirement age");
+        if (isNaN(incomeGrowthPct)) incomeGrowthPct = 0;
+
+        return { currAge, retAge, startingNestEgg, monthlyIncome, monthlyExpensesBase, inflationPct, roiPrePct, roiPostPct,
+          lifeExpectancy, incomeGrowthPct };
+      }
+
+      function simulateWithGrowthRate(incomeGrowthPct, roiPrePct, roiPostPct, returnDetails = false) {
+        try {
+          const { currAge, retAge, startingNestEgg, monthlyIncome, monthlyExpensesBase, inflationPct,
+            lifeExpectancy } = getInputs();
+          const inflationRate = inflationPct / 100;
+          const roiPreNominal = roiPrePct / 100;
+          const roiPostNominal = roiPostPct / 100;
+          const incomeGrowthRate = incomeGrowthPct / 100;
+
+          const yearsToRetire = retAge - currAge;
+          if (yearsToRetire <= 0) return { finalBalance: -Infinity, error: true };
+
+          let balance = startingNestEgg;
+          let accumRows = [];
+          let currentMonthlyIncomeNom = monthlyIncome;
+          let currentMonthlyExpensesNom = monthlyExpensesBase;
+
+          for (let i = 0; i < yearsToRetire; i++) {
+            const currentAge = currAge + i;
+            const monthlySavingsThisYear = Math.max(0, currentMonthlyIncomeNom - currentMonthlyExpensesNom);
+            const yearlySavings = monthlySavingsThisYear * 12;
+            const startBalance = balance;
+            const investmentReturn = startBalance * roiPreNominal;
+            const endBalance = startBalance + yearlySavings + investmentReturn;
+
+            if (returnDetails) {
+              accumRows.push({
+                age: currentAge,
+                year: i + 1,
+                startBal: startBalance,
+                yearlySave: yearlySavings,
+                monthlySave: monthlySavingsThisYear,
+                monthlyIncome: currentMonthlyIncomeNom,
+                monthlyExpense: currentMonthlyExpensesNom,
+                investmentRet: investmentReturn,
+                endBal: endBalance
+              });
+            }
+            balance = endBalance;
+            currentMonthlyIncomeNom = currentMonthlyIncomeNom * (1 + incomeGrowthRate);
+            currentMonthlyExpensesNom = currentMonthlyExpensesNom * (1 + inflationRate);
+          }
+
+          const retirementStartBalance = balance;
+          let firstRetirementAnnualExpense = currentMonthlyExpensesNom * 12;
+
+          let retireBalance = retirementStartBalance;
+          let spendRows = [];
+          let totalRetirementYears = lifeExpectancy - retAge;
+          if (totalRetirementYears <= 0) return { finalBalance: -Infinity, error: true };
+
+          let annualExpense = firstRetirementAnnualExpense;
+          for (let j = 0; j < totalRetirementYears; j++) {
+            let currentAgeDuringRetirement = retAge + j;
+            let startBalYear = retireBalance;
+            let balanceAfterExpenses = startBalYear - annualExpense;
+            let growth = balanceAfterExpenses * roiPostNominal;
+            let endBalance = balanceAfterExpenses + growth;
+            if (returnDetails) {
+              spendRows.push({
+                age: currentAgeDuringRetirement,
+                year: j + 1,
+                startBal: startBalYear,
+                annualExpense: annualExpense,
+                monthlyExpense: annualExpense / 12,
+                growth: growth,
+                endBal: endBalance
+              });
+            }
+            retireBalance = endBalance;
+            annualExpense = annualExpense * (1 + inflationRate);
+          }
+
+          if (returnDetails) {
+            return { finalBalance: retireBalance, accumRows, spendRows, retirementStartBalance,
+              firstRetirementAnnualExpense, success: true };
+          }
+          return { finalBalance: retireBalance, success: true };
+        } catch (e) {
+          return { finalBalance: -Infinity, error: true, message: e.message };
+        }
+      }
+
+      function findRequiredGrowthRateForScenario(roiPrePct, roiPostPct) {
+        try {
+          let low = 0;
+          let high = 25;
+          let targetPrecision = 0.01;
+
+          let resultLow = simulateWithGrowthRate(low, roiPrePct, roiPostPct);
+          if (resultLow.finalBalance >= 0) {
+            return low;
+          }
+
+          let resultHigh = simulateWithGrowthRate(high, roiPrePct, roiPostPct);
+          if (resultHigh.finalBalance < 0) {
+            return null; // Even 25% growth is insufficient
+          }
+
+          let mid, resultMid;
+          let iterations = 0;
+          while ((high - low) > targetPrecision && iterations < 60) {
+            mid = (low + high) / 2;
+            resultMid = simulateWithGrowthRate(mid, roiPrePct, roiPostPct);
+            if (resultMid.finalBalance >= 0) {
+              high = mid;
+            } else {
+              low = mid;
+            }
+            iterations++;
+          }
+
+          return high;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function getExhaustionAgeForScenario(roiPrePct, roiPostPct, growthRatePct) {
+        try {
+          const result = simulateWithGrowthRate(growthRatePct, roiPrePct, roiPostPct, true);
+          if (!result.success || result.error) return null;
+          for (let row of result.spendRows) {
+            if (row.endBal < 0) {
+              return row.age;
+            }
+          }
+          return null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function generateScenarioTable() {
+        const { roiPrePct, roiPostPct } = getInputs();
+        const lifeExp = parseInt(document.getElementById('lifeExp').value);
+
+        scenarioTbody.innerHTML = '';
+        let anyFailure = false;
+        let failureMessage = '';
+
+        // Generate rows from 0% NIFTY to 100% NIFTY in 10% increments
+        for (let niftyPct = 0; niftyPct <= 100; niftyPct += 10) {
+          const bondPct = 100 - niftyPct;
+          const preRetReturn = (niftyPct / 100) * RISKY_RETURN + (bondPct / 100) * RISK_FREE_RETURN;
+          // Post-retirement: more conservative - assume 50% of equity exposure is reduced
+          const postRetReturn = (niftyPct / 100) * 9 + (bondPct / 100) * 5.6;
+
+          const requiredGrowth = findRequiredGrowthRateForScenario(preRetReturn, postRetReturn);
+
+          let statusText = '';
+          let statusClass = '';
+          let exhaustAge = null;
+
+          if (requiredGrowth === null) {
+            statusText = '⚠️ Insufficient';
+            statusClass = 'negative';
+            anyFailure = true;
+            failureMessage =
+              `⚠️ Even with 25% income growth, ${niftyPct}% NIFTY / ${bondPct}% Bonds allocation is insufficient. Consider reducing expenses or increasing starting nest egg.`;
+          } else {
+            exhaustAge = getExhaustionAgeForScenario(preRetReturn, postRetReturn, requiredGrowth);
+            if (exhaustAge === null) {
+              statusText = `✅ Lasts to ${lifeExp}`;
+              statusClass = 'positive';
+            } else {
+              statusText = `⚠️ Exhausts at ${exhaustAge}`;
+              statusClass = 'negative';
+              anyFailure = true;
+            }
+          }
+
+          const isCurrent = Math.abs(preRetReturn - roiPrePct) < 0.05;
+
+          const tr = document.createElement('tr');
+          if (isCurrent) {
+            tr.className = 'highlight';
+          }
+          tr.innerHTML = `
+          <td>${niftyPct}%</td>
+          <td>${bondPct}%</td>
+          <td>${preRetReturn.toFixed(2)}%</td>
+          <td>${postRetReturn.toFixed(2)}%</td>
+          <td>${requiredGrowth !== null ? requiredGrowth.toFixed(2) + '%' : '∞'}</td>
+          <td class="${statusClass}">${statusText}</td>
+        `;
+          scenarioTbody.appendChild(tr);
+        }
+
+        if (anyFailure) {
+          scenarioExhaustionWarning.style.display = 'block';
+          scenarioExhaustionWarning.style.background = '#fee2e2';
+          scenarioExhaustionWarning.style.borderLeftColor = '#c2410c';
+          scenarioExhaustionWarning.innerHTML = failureMessage ||
+            '⚠️ Some asset allocations may not sustain retirement even with high income growth. Consider increasing savings or reducing expenses.';
+        } else {
+          scenarioExhaustionWarning.style.display = 'block';
+          scenarioExhaustionWarning.style.background = '#e6f4ea';
+          scenarioExhaustionWarning.style.borderLeftColor = '#2c9d8f';
+          scenarioExhaustionWarning.innerHTML =
+            '✅ All asset allocation scenarios can sustain retirement with the required income growth rate shown above. The highlighted row shows your current asset allocation.';
+        }
+
+        scenarioCard.style.display = 'block';
+      }
+
+      function findExhaustionAge(spendRows) {
+        for (let row of spendRows) {
+          if (row.endBal < 0) {
+            return row.age;
+          }
+        }
+        return null;
+      }
+
+      function updateExhaustionWarning(spendRows) {
+        const exhaustionAge = findExhaustionAge(spendRows);
+        const lifeExp = parseInt(document.getElementById('lifeExp').value);
+        const retAge = parseInt(document.getElementById('retAge').value);
+
+        if (exhaustionAge) {
+          const yearsInRetirement = exhaustionAge - retAge;
+          exhaustionWarningDiv.style.display = 'block';
+          exhaustionWarningDiv.style.background = '#fee2e2';
+          exhaustionWarningDiv.style.borderLeftColor = '#c2410c';
+          exhaustionWarningDiv.innerHTML = `
+          ⚠️ <strong>SAVINGS WILL BE EXHAUSTED AT THE AGE OF <span class="warning-age">${exhaustionAge}</span></strong><br>
+          Your retirement corpus will run out after ${yearsInRetirement} year(s) of retirement (at age ${exhaustionAge}).
+          You will need additional funds or should reconsider your retirement plan.
+        `;
+        } else {
+          exhaustionWarningDiv.style.display = 'block';
+          exhaustionWarningDiv.style.background = '#e6f4ea';
+          exhaustionWarningDiv.style.borderLeftColor = '#2c9d8f';
+          exhaustionWarningDiv.innerHTML = `
+          ✅ <strong>Your savings will last through your entire life expectancy (age ${lifeExp})</strong><br>
+          Your retirement corpus never goes negative throughout your planned retirement period.
+        `;
+        }
+      }
+
+      function updateCharts(accumRows, spendRows) {
+        const accumAges = accumRows.map(r => r.age);
+        const accumBalances = accumRows.map(r => r.endBal);
+        const spendAges = spendRows.map(r => r.age);
+        const spendBalances = spendRows.map(r => r.endBal);
+
+        const allAges = [...accumAges, ...spendAges];
+        const allBalances = [...accumBalances, ...spendBalances];
+
+        const exhaustionAge = findExhaustionAge(spendRows);
+
+        if (balanceChart) balanceChart.destroy();
+        const ctx1 = document.getElementById('balanceChart').getContext('2d');
+        balanceChart = new Chart(ctx1, {
+          type: 'line',
+          data: {
+            labels: allAges,
+            datasets: [{
+              label: 'Portfolio Balance (₹)',
+              data: allBalances,
+              borderColor: '#2c9d8f',
+              backgroundColor: 'rgba(44,157,143,0.1)',
+              fill: true,
+              tension: 0.4,
+              pointRadius: 2,
+              pointHoverRadius: 6,
+              segment: {
+                borderColor: (ctx) => {
+                  if (exhaustionAge && ctx.p1DataIndex > 0) {
+                    const age = allAges[ctx.p1DataIndex];
+                    if (age >= exhaustionAge) {
+                      return '#c2410c';
+                    }
+                  }
+                  return '#2c9d8f';
+                },
+                backgroundColor: (ctx) => {
+                  if (exhaustionAge && ctx.p1DataIndex > 0) {
+                    const age = allAges[ctx.p1DataIndex];
+                    if (age >= exhaustionAge) {
+                      return 'rgba(194,65,12,0.1)';
+                    }
+                  }
+                  return 'rgba(44,157,143,0.1)';
+                }
+              }
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return 'Balance: ' + formatMoney(context.raw);
+                  }
+                }
+              },
+              legend: { position: 'top' }
+            },
+            scales: {
+              y: {
+                ticks: {
+                  callback: function(value) {
+                    return formatMoney(value);
+                  }
+                }
+              },
+              x: {
+                title: { display: true, text: 'Age (years)' }
+              }
+            }
+          }
+        });
+
+        const workingYears = accumRows.map(r => r.age);
+        const monthlyIncomes = accumRows.map(r => r.monthlyIncome);
+        const monthlyExpenses = accumRows.map(r => r.monthlyExpense);
+
+        if (incomeExpenseChart) incomeExpenseChart.destroy();
+        const ctx2 = document.getElementById('incomeExpenseChart').getContext('2d');
+        incomeExpenseChart = new Chart(ctx2, {
+          type: 'line',
+          data: {
+            labels: workingYears,
+            datasets: [{
+              label: 'Monthly Income (₹)',
+              data: monthlyIncomes,
+              borderColor: '#2c6e9d',
+              backgroundColor: 'transparent',
+              tension: 0.3,
+              pointRadius: 1
+            }, {
+              label: 'Monthly Expenses (₹)',
+              data: monthlyExpenses,
+              borderColor: '#c2410c',
+              backgroundColor: 'transparent',
+              tension: 0.3,
+              pointRadius: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return context.dataset.label + ': ' + formatMoney(context.raw);
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                ticks: {
+                  callback: function(value) {
+                    return formatMoney(value);
+                  }
+                }
+              },
+              x: {
+                title: { display: true, text: 'Age (working years)' }
+              }
+            }
+          }
+        });
+      }
+
+      function findRequiredGrowthRate() {
+        solverOutputDiv.style.display = 'block';
+        solverOutputDiv.innerHTML = '<span>🔍 Searching for optimal income growth rate... please wait.</span>';
+        pingUsageCounter('solve');
+
+        setTimeout(() => {
+          try {
+            const { roiPrePct, roiPostPct } = getInputs();
+            let low = 0;
+            let high = 25;
+            let targetPrecision = 0.01;
+
+            let resultLow = simulateWithGrowthRate(low, roiPrePct, roiPostPct);
+            if (resultLow.finalBalance >= 0) {
+              document.getElementById('manualGrowthRate').value = low.toFixed(2);
+              const requiredRate = low;
+              const riskFreeRate = 5.6;
+              let explanationHtml = '';
+              if (requiredRate > riskFreeRate) {
+                explanationHtml = `
+                <div class="solver-explanation">
+                  💡 <strong>Understanding this result:</strong><br>
+                  The required income growth rate of <strong>${requiredRate.toFixed(2)}%</strong> is higher than the risk-free return of <strong>5.6%</strong> (RBI bond after-tax).<br>
+                  This means you need to invest a portion of your portfolio in <strong>risky assets</strong> like:<br>
+                  • <strong>NIFTY Index</strong> - Long-term expected returns of 11%<br>
+                  • <strong>Flexi Cap Mutual Funds</strong> - Diversified equity exposure<br><br>
+                  To achieve portfolio returns above 5.6%, you need to allocate a percentage of your corpus to these equity assets.
+                </div>
+              `;
+              } else {
+                explanationHtml = `
+                <div class="solver-explanation">
+                  💡 <strong>Understanding this result:</strong><br>
+                  The required income growth rate of <strong>${requiredRate.toFixed(2)}%</strong> is at or below the risk-free return of <strong>5.6%</strong> (RBI bond after-tax).<br>
+                  This means you can achieve your retirement goals by investing in <strong>risk-free assets</strong> like RBI bonds, Fixed Deposits, or PPF.
+                </div>
+              `;
+              }
+              solverOutputDiv.innerHTML =
+                `<span class="success">✅ <strong>Required income growth rate: ${requiredRate.toFixed(2)}% per year</strong><br>Your current finances already sustain retirement until age ${document.getElementById('lifeExp').value}.</span>${explanationHtml}`;
+              runFullDisplay(low);
+              generateScenarioTable();
+              return;
+            }
+
+            let resultHigh = simulateWithGrowthRate(high, roiPrePct, roiPostPct);
+            if (resultHigh.finalBalance < 0) {
+              solverOutputDiv.innerHTML =
+                `<span class="warning">⚠️ Even with ${high}% annual income growth, retirement funds are insufficient. Consider reducing expenses, increasing ROI, delaying retirement, or increasing starting nest egg.</span>`;
+              generateScenarioTable();
+              return;
+            }
+
+            let mid, resultMid;
+            let iterations = 0;
+            while ((high - low) > targetPrecision && iterations < 60) {
+              mid = (low + high) / 2;
+              resultMid = simulateWithGrowthRate(mid, roiPrePct, roiPostPct);
+              if (resultMid.finalBalance >= 0) {
+                high = mid;
+              } else {
+                low = mid;
+              }
+              iterations++;
+            }
+
+            const requiredRate = high;
+            document.getElementById('manualGrowthRate').value = requiredRate.toFixed(2);
+
+            const riskFreeRate = 5.6;
+            let explanationHtml = '';
+            if (requiredRate > riskFreeRate) {
+              explanationHtml = `
+              <div class="solver-explanation">
+                💡 <strong>Understanding this result:</strong><br>
+                The required income growth rate of <strong>${requiredRate.toFixed(2)}%</strong> is higher than the risk-free return of <strong>5.6%</strong> (RBI bond after-tax).<br>
+                This means you need to invest a portion of your portfolio in <strong>risky assets</strong> like:<br>
+                • <strong>NIFTY Index</strong> - Long-term expected returns of 11%<br>
+                • <strong>Flexi Cap Mutual Funds</strong> - Diversified equity exposure<br><br>
+                To achieve portfolio returns above 5.6%, you need to allocate a percentage of your corpus to these equity assets.
+              </div>
+            `;
+            } else {
+              explanationHtml = `
+              <div class="solver-explanation">
+                💡 <strong>Understanding this result:</strong><br>
+                The required income growth rate of <strong>${requiredRate.toFixed(2)}%</strong> is at or below the risk-free return of <strong>5.6%</strong> (RBI bond after-tax).<br>
+                This means you can achieve your retirement goals by investing in <strong>risk-free assets</strong> like RBI bonds, Fixed Deposits, or PPF.
+              </div>
+            `;
+            }
+
+            solverOutputDiv.innerHTML =
+              `<span class="success">✅ <strong>Required constant annual income growth rate: ${requiredRate.toFixed(2)}% per year</strong><br>
+          → With this growth, your retirement savings will last exactly until age ${document.getElementById('lifeExp').value}.<br>
+          → Growth is applied to monthly income each year. Expenses grow with inflation (${document.getElementById('inflation').value}%).<br>
+          → Starting nest egg: ${formatMoney(parseFloat(document.getElementById('startingNestEgg').value))}</span>${explanationHtml}`;
+
+            runFullDisplay(requiredRate);
+            generateScenarioTable();
+
+          } catch (err) {
+            solverOutputDiv.innerHTML = `<span class="warning">❌ Error: ${err.message}</span>`;
+          }
+        }, 50);
+      }
+
+      function runFullDisplay(growthRatePct) {
+        try {
+          const { roiPrePct, roiPostPct } = getInputs();
+          const result = simulateWithGrowthRate(growthRatePct, roiPrePct, roiPostPct, true);
+          if (!result.success || result.error) {
+            alert("Simulation failed with this growth rate.");
+            return;
+          }
+
+          const { accumRows, spendRows, retirementStartBalance, firstRetirementAnnualExpense, finalBalance } = result;
+
+          accumTbody.innerHTML = '';
+          for (let row of accumRows) {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+            <td class="money">${row.age}</td>
+            <td class="money">${row.year}</td>
+            <td class="money">${formatMoney(row.startBal)}</td>
+            <td class="money">${formatMoney(row.monthlySave)}</td>
+            <td class="money">${formatMoney(row.yearlySave)}</td>
+            <td class="money">${formatMoney(row.investmentRet)}</td>
+            <td class="money"><strong>${formatMoney(row.endBal)}</strong></td>
+          `;
+            accumTbody.appendChild(tr);
+          }
+
+          spendTbody.innerHTML = '';
+          for (let row of spendRows) {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+            <td class="money">${row.age}</td>
+            <td class="money">${row.year}</td>
+            <td class="money">${formatMoney(row.startBal)}</td>
+            <td class="money">${formatMoney(row.annualExpense)}</td>
+            <td class="money">${formatMoney(row.monthlyExpense)}</td>
+            <td class="money">${formatMoney(row.growth)}</td>
+            <td ${row.endBal < 0 ? 'style="background:#fee2e2;"' : ''}><strong class="${row.endBal < 0 ? 'negative-balance' : 'money'}">${formatMoney(row.endBal)}</strong></td>
+          `;
+            spendTbody.appendChild(tr);
+          }
+
+          const isSufficient = finalBalance >= 0;
+          const shortfall = finalBalance < 0 ? -finalBalance : 0;
+          const startingNest = parseFloat(document.getElementById('startingNestEgg').value);
+
+          let summaryHtml = `
+          <div class="summary-item"><span class="badge">💰 Starting nest egg</span> ${formatMoney(startingNest)}</div>
+          <div class="summary-item"><span class="badge">🏦 Nest egg at retirement</span> ${formatMoney(retirementStartBalance)}</div>
+          <div class="summary-item"><span class="badge">📆 First year retirement expenses</span> ${formatMoney(firstRetirementAnnualExpense)} / year</div>
+          <div class="summary-item"><span class="badge">🏁 Final balance at life expectancy (age ${document.getElementById('lifeExp').value})</span> ${formatMoney(finalBalance)}</div>
+          <div class="summary-item"><span class="badge">${isSufficient ? '✅ Funds last through life expectancy' : '⚠️ Shortfall'}</span> ${!isSufficient ? `Needs additional ${formatMoney(shortfall)}` : 'Projection successful.'}</div>
+          <div class="summary-item"><span class="badge">📈 Applied income growth rate</span> ${growthRatePct.toFixed(2)}% per year</div>
+        `;
+          summaryBox.innerHTML = summaryHtml;
+
+          updateExhaustionWarning(spendRows);
+          updateCharts(accumRows, spendRows);
+
+          accumCard.style.display = 'block';
+          spendCard.style.display = 'block';
+          chartsCard.style.display = 'block';
+          incomeExpenseCard.style.display = 'block';
+
+          document.querySelectorAll('.table-wrapper').forEach(wrapper => {
+            const table = wrapper.querySelector('table');
+            if (table && table.scrollWidth <= table.clientWidth) {
+              wrapper.classList.add('no-scroll');
+            } else {
+              wrapper.classList.remove('no-scroll');
+            }
+          });
+
+          setTimeout(() => {
+            document.getElementById('accumCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+
+        } catch (err) {
+          alert("Display error: " + err.message);
+        }
+      }
+
+      function manualCalculate() {
+        try {
+          const growthRate = parseFloat(manualGrowthInput.value);
+          if (isNaN(growthRate)) throw new Error("Invalid growth rate");
+          pingUsageCounter('calculate');
+          runFullDisplay(growthRate);
+          solverOutputDiv.style.display = 'none';
+          generateScenarioTable();
+        } catch (err) {
+          alert("Error: " + err.message);
+        }
+      }
+
+      function initDisclaimer() {
+        const hasAccepted = localStorage.getItem('lakshmiramRetirementPlannerDisclaimer');
+
+        if (!hasAccepted) {
+          reportContainer.style.display = 'none';
+          disclaimerModal.style.display = 'flex';
+        } else {
+          reportContainer.style.display = 'block';
+          disclaimerModal.style.display = 'none';
+          manualCalculate();
+        }
+      }
+
+      document.getElementById('acceptDisclaimerBtn').addEventListener('click', function() {
+        localStorage.setItem('lakshmiramRetirementPlannerDisclaimer', 'accepted');
+        reportContainer.style.display = 'block';
+        disclaimerModal.style.display = 'none';
+        manualCalculate();
+      });
+
+      calcBtn.addEventListener('click', manualCalculate);
+      solverBtn.addEventListener('click', findRequiredGrowthRate);
+
+      initDisclaimer();
+    })();
+  </script>
+</body>
+</html>

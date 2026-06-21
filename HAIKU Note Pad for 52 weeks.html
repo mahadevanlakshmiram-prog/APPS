@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haiku Poems - Interactive Journal</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #dcdde1;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Top Toolbar Controls */
+        .toolbar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            background: #2c3e50;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            background-color: #34495e;
+            color: #ecf0f1;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+        }
+        .btn:hover {
+            background-color: #1abc9c;
+            color: white;
+        }
+        .btn:disabled {
+            background-color: #7f8c8d;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .page-indicator {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        /* Two-Page Book Wrapper */
+        .book-container {
+            display: flex;
+            width: 95%;
+            max-width: 1300px;
+            height: 700px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        /* Left Side: Poem Page Display */
+        .poem-page {
+            flex: 1;
+            background-color: #ffffff;
+            padding: 90px 70px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-right: 2px solid #bdc3c7;
+            box-sizing: border-box;
+            position: relative;
+            user-select: none;
+            overflow: hidden; 
+        }
+
+        /* Double-Sized Green Leaf Corner Decorations */
+        .corner-leaf {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background-color: #27ae60;
+            opacity: 0.85;
+            z-index: 10;
+        }
+        .top-left {
+            top: 25px;
+            left: 25px;
+            border-radius: 0 80px;
+            transform: rotate(-15deg);
+        }
+        .top-right {
+            top: 25px;
+            right: 25px;
+            border-radius: 80px 0;
+            transform: rotate(15deg);
+        }
+        .bottom-left {
+            bottom: 25px;
+            left: 25px;
+            border-radius: 80px 0;
+            transform: rotate(-15deg);
+        }
+        .bottom-right {
+            bottom: 25px;
+            right: 25px;
+            border-radius: 0 80px;
+            transform: rotate(15deg);
+        }
+
+        /* Poem Typography Container */
+        .poem-container-inner {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .poem-text {
+            font-family: 'Garamond', 'Adobe Garamond Pro', 'Georgia', serif;
+            font-size: 48px; 
+            font-style: italic;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.5;
+            color: #2c3e50;
+            word-wrap: break-word;
+            display: inline-block;
+        }
+
+        /* Right Side: Editable Notepad Page */
+        .notepad-page {
+            flex: 1;
+            background-color: #fef9e7;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            border-left: 2px solid #fff;
+            box-sizing: border-box;
+            position: relative;
+        }
+        .notepad-header {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            color: #7f8c8d;
+            border-bottom: 2px solid #e67e22;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .notepad-textarea {
+            flex: 1;
+            width: 100%;
+            background: transparent;
+            border: none;
+            resize: none;
+            font-family: 'Georgia', serif;
+            font-size: 18px;
+            line-height: 1.8;
+            color: #2c3e50;
+            outline: none;
+            padding: 0;
+            background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px);
+            background-size: 100% 1.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <button class="btn" id="prevBtn" onclick="changePage(-1)">◀ Previous</button>
+        <span class="page-indicator" id="pageNumberDisplay">Page 1</span>
+        <button class="btn" id="nextBtn" onclick="changePage(1)">Next ▶</button>
+    </div>
+
+    <div class="book-container">
+        
+        <div class="poem-page" id="poemPageContainer">
+            <div class="corner-leaf top-left"></div>
+            <div class="corner-leaf top-right"></div>
+            <div class="corner-leaf bottom-left"></div>
+            <div class="corner-leaf bottom-right"></div>
+
+            <div class="poem-container-inner">
+                <div class="poem-text" id="poemContentArea">
+                    Loading Application...
+                </div>
+            </div>
+        </div>
+
+        <div class="notepad-page">
+            <div class="notepad-header" id="notepadTitle">REFLECTIONS / PAGE 1</div>
+            <textarea class="notepad-textarea" id="notebookInput" placeholder="Type your personal observations, line edits, or creative notes here..."></textarea>
+        </div>
+
+    </div>
+
+    <script>
+        // System Data Registry - Map containing 1 complete poem per index item
+        const bookPages = [
+            { text: "HAIKU POEMS<br><br><span style='font-size: 0.6em; font-weight: normal; font-style: normal;'>By<br>Lakshmiram Mahadevan<br><br><span style='font-size: 0.7em; color: #7f8c8d;'>mahadevanlakshmiram@gmail.com<br>+91 8072955665</span></span>" },
+            { text: "WHAT IS A HAIKU POEM?<br><br><span style='font-weight: normal; font-size: 0.65em; line-height: 1.4;'>Haiku is a traditional Japanese poetry form that captures a single moment in nature. A classic haiku follows a 5-7-5 syllable pattern and includes a seasonal reference. The poem is often marked by a dash that juxtaposes two images, inviting the reader to find meaning in their contrast.<br><br>Haiku shows, never tells. It observes the world with simplicity and stillness, trusting concrete imagery to evoke emotion without explanation.</span>" },
+            
+            { text: "monsoon showers splash,<br>children racing paper boats<br>a croaking frog jumps" },
+            { text: "plain and simple room,<br>ikebana arrangement<br>spring comes right through" },
+            { text: "autumn years, grand kids,<br>playing hide and seek, counting<br>now - where are they" },
+            { text: "shivering leaf,<br>frosty windows, fingers numb<br>steaming soup spills a bit" },
+            { text: "nice dress, water puddles,<br>walkers dodge a sudden splash –<br>monsoon challenge" },
+            { text: "no nip in the air,<br>tulips open, cherry falls –<br>light till nearly eight" },
+            { text: "bike track invites,<br>walkers part like waves –<br>mission to complete" },
+            { text: "cool winds, light showers,<br>no dust, just the scent of air –<br>soft sound, falling droplets" },
+            { text: "sweaty skin, dry mouth,<br>hot winds, distant shades<br>sweet coconut water" },
+            { text: "sunset years, helping sunrise,<br>life images reel flashes –<br>dry chrysanthemums on a mentor's desk" },
+            { text: "scent rises high,<br>humble spring violet<br>just above ground" },
+            { text: "spring violet<br>salad, candy, scent<br>still a flower" },
+            { text: "ripe yellow, honey thick,<br>juice, ice cream or custard<br>mango summer" },
+            { text: "spring never misses,<br>no awards, none desired<br>why not we be spring" },
+            { text: "waves drenching –<br>retreat, wait,<br>sent mom selfies" },
+            { text: "scent of rain, cool breeze,<br>sunrising, light reddish tinge –<br>distant train whistle" },
+            { text: "bumpy roads,<br>glaring lights, noisy horns<br>sound sleep waits" },
+            { text: "wings flutter,<br>leaves rustle, Doves coo<br>roaring waterfalls" },
+            { text: "not all siblings are same,<br>some lead, some need support<br>for all seasons" },
+            { text: "decades together side by side,<br>each knows other's favorites -<br>coffee and gossip - even today" },
+            { text: "a nail biting game,<br>faces turn in unison<br>quenching ice cold beer" },
+            { text: "dove-wing droplets,<br>roaring waterfall<br>one never meets the earth" },
+            { text: "cherries bloom,<br>cherries fall - together,<br>spring's brief miracle" },
+            { text: "pale pink to pure white,<br>petal snow earth, bloom to fall,<br>no one catches them" },
+            { text: "ancient, winged stonefly,<br>only found in cold clean water –<br>cockroach's far cousin" },
+            { text: "not six legs - far more,<br>millipede shredders dead plants,<br>healthy soil beneath" },
+            { text: "caddisfly builder,<br>catches food with silken net<br>unlike its stonefly kin" },
+            
+            // Page 30 updated to include "script on the mud" as the first line
+            { text: "script on the mud,<br>two feet, four hooves, a hundred legs –<br>future compass" },
+            
+            { text: "right or left,<br>near airport -<br>brother points" },
+            { text: "autumn years, slow steps,<br>ask me, always here to share<br>what did you say now" },
+            { text: "bold tattoos, nose ring,<br>shaven head, proudly torn jeans –<br>still miss mom's goodnight" },
+            { text: "a small space unseen,<br>used a few times every day –<br>moving in awaits toilets" },
+            { text: "locker rows, all alike,<br>keys to reveal treasures –<br>birds’ nests, no keys" },
+            { text: "casual, dressed up,<br>empty seat beside me –<br>sunny hopes" },
+            { text: "living room carpet,<br>design portrays an epic –<br>sleeping dog under the sofa" },
+            { text: "a great leader's statue,<br>in the heart of the city --<br>pigeons enjoying the view" },
+            { text: "mumbai stadium,<br>ball hit for a six --<br>popcorn seller returns change" },
+            { text: "a small space, unseen<br>used only a few times, but must --<br>moving in awaits toilets" },
+            { text: "locker rows, all alike<br>keys to reveal cash, jewels --<br>birds' nests, no keys" },
+            { text: "old hostel room,<br>canteen dishes smell great --<br>me in the group photo" },
+            { text: "doctorate scholar,<br>highest tax payer --<br>no gold medal" },
+            { text: "traffic signal turns green,<br>porsche revving up to start --<br>a cow starts to cross" },
+            { text: "shrieking kids,<br>mothers catching school bags –<br>strawberry ice cream" },
+            { text: "thunder, lightning,<br>umbrellas bloom, blurry vision –<br>rich rainbow arc" },
+            { text: "running on the beach,<br>sand in shoes, waves retreat –<br>sandcastle home" },
+            { text: "more time in autumn years,<br>mentor with no followers –<br>unheard, unspoken" },
+            { text: "pigeons on window sill,<br>wings flutter, cooing –<br>lifts to sky in seconds" },
+            { text: "home gas cylinders,<br>heavy full, yet heavy empty –<br>good for weight lifters" },
+            { text: "whatsapp, instagram,<br>no time for useful stuff now –<br>still pain in the neck" },
+            { text: "i am ten times faster<br>than an ant to cross my room –<br>but ant knows room better" },
+            { text: "writing haiku poems,<br>better focus, more present –<br>rated instantly" }
+        ];
+
+        let currentPageIndex = 0;
+        const storagePrefix = "haiku_perfect_fit_page_";
+
+        const poemPageContainer = document.getElementById('poemPageContainer');
+        const poemContentArea = document.getElementById('poemContentArea');
+        const notebookInput = document.getElementById('notebookInput');
+        const notepadTitle = document.getElementById('notepadTitle');
+        const pageNumberDisplay = document.getElementById('pageNumberDisplay');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        notebookInput.addEventListener('input', () => {
+            localStorage.setItem(storagePrefix + currentPageIndex, notebookInput.value);
+        });
+
+        function adjustFontSizeToFit() {
+            poemContentArea.style.fontSize = "48px";
+            
+            let maxHeight = poemPageContainer.clientHeight - 180; 
+            let maxWidth = poemPageContainer.clientWidth - 140;   
+            let currentFontSize = 48;
+
+            while ((poemContentArea.offsetHeight > maxHeight || poemContentArea.offsetWidth > maxWidth) && currentFontSize > 14) {
+                currentFontSize -= 1;
+                poemContentArea.style.fontSize = currentFontSize + "px";
+            }
+        }
+
+        function renderPage() {
+            const pageData = bookPages[currentPageIndex];
+            poemContentArea.innerHTML = pageData.text;
+
+            adjustFontSizeToFit();
+
+            pageNumberDisplay.textContent = `Page ${currentPageIndex + 1} / ${bookPages.length}`;
+            notepadTitle.textContent = `MY REFLECTIONS / PAGE ${currentPageIndex + 1}`;
+            
+            const savedNote = localStorage.getItem(storagePrefix + currentPageIndex);
+            notebookInput.value = savedNote ? savedNote : "";
+
+            prevBtn.disabled = currentPageIndex === 0;
+            nextBtn.disabled = currentPageIndex === bookPages.length - 1;
+        }
+
+        function changePage(direction) {
+            currentPageIndex += direction;
+            renderPage();
+        }
+
+        window.addEventListener('resize', adjustFontSizeToFit);
+        renderPage();
+    </script>
+</body>
+</html>
