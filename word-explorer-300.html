@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Mega Word Explorer | 300 Active Words & Synonyms</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            padding: 1rem;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: inline-block;
+            background: #ffd700;
+            color: #1e3c72;
+            padding: 0.4rem 1.2rem;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .search-section {
+            padding: 1.5rem 2rem;
+            background: #f7f9fc;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            font-size: 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-box:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.4rem 1rem;
+            background: white;
+            border: 1px solid #cbd5e0;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .words-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+            padding: 2rem;
+            max-height: 500px;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .word-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .word-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            border-color: #667eea;
+        }
+
+        .word-card.active-word {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .main-word {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .word-card.active-word .click-hint {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .click-hint {
+            font-size: 0.7rem;
+            color: #6c757d;
+        }
+
+        .synonyms-panel {
+            background: #fef9e6;
+            border-radius: 1.5rem;
+            margin: 0 2rem 2rem 2rem;
+            padding: 1.5rem;
+            border-left: 6px solid #ffb347;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            animation: slideUp 0.3s ease;
+        }
+
+        .synonyms-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .synonyms-header h3 {
+            font-size: 1.3rem;
+            color: #b45f1b;
+        }
+
+        .close-syn {
+            background: #ffdd99;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        .close-syn:hover {
+            background: #ffc266;
+        }
+
+        .synonyms-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+        }
+
+        .synonym-badge {
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #7c4a1a;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: 0.2s;
+        }
+
+        .synonym-badge:hover {
+            background: #ffb347;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f7f9fc;
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .words-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                padding: 1rem;
+                gap: 0.8rem;
+            }
+            .synonyms-panel {
+                margin: 0 1rem 1rem 1rem;
+                padding: 1rem;
+            }
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Custom scrollbar */
+        .words-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .words-grid::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .words-grid::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container" id="wordApp">
+    <div class="header">
+        <h1>📚 Mega Word Explorer</h1>
+        <p>Master your vocabulary with 300 essential English words</p>
+        <div class="stats">🎯 300 Active Words • Click Any Word for Synonyms</div>
+    </div>
+
+    <div class="search-section">
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search for a word...">
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">All Words</button>
+            <button class="filter-btn" data-filter="A-D">A-D</button>
+            <button class="filter-btn" data-filter="E-H">E-H</button>
+            <button class="filter-btn" data-filter="I-L">I-L</button>
+            <button class="filter-btn" data-filter="M-P">M-P</button>
+            <button class="filter-btn" data-filter="Q-T">Q-T</button>
+            <button class="filter-btn" data-filter="U-Z">U-Z</button>
+        </div>
+    </div>
+
+    <div class="words-grid" id="wordsGrid"></div>
+    <div id="synonymsPanelContainer"></div>
+    <footer>💡 Tip: Click any word to see synonyms • Use search to find specific words</footer>
+</div>
+
+<script>
+    // Complete vocabulary of 300 actively used English words with synonyms
+    const vocabulary = [
+        // A
+        { word: "Abandon", synonyms: ["Desert", "Forsake", "Leave", "Relinquish", "Surrender"] },
+        { word: "Ability", synonyms: ["Capability", "Talent", "Skill", "Competence", "Expertise"] },
+        { word: "Able", synonyms: ["Capable", "Competent", "Skilled", "Qualified", "Proficient"] },
+        { word: "Above", synonyms: ["Over", "Higher", "Superior", "Beyond", "Exceeding"] },
+        { word: "Absorb", synonyms: ["Soak up", "Assimilate", "Ingest", "Incorporate", "Engross"] },
+        { word: "Abundant", synonyms: ["Plentiful", "Copious", "Ample", "Generous", "Lavish"] },
+        { word: "Accept", synonyms: ["Receive", "Embrace", "Welcome", "Approve", "Acknowledge"] },
+        { word: "Access", synonyms: ["Entry", "Admission", "Approach", "Entrance", "Admittance"] },
+        { word: "Achieve", synonyms: ["Accomplish", "Attain", "Reach", "Realize", "Complete"] },
+        { word: "Active", synonyms: ["Energetic", "Lively", "Dynamic", "Vigorous", "Busy"] },
+        
+        // B
+        { word: "Beautiful", synonyms: ["Attractive", "Lovely", "Gorgeous", "Stunning", "Elegant"] },
+        { word: "Begin", synonyms: ["Start", "Commence", "Initiate", "Launch", "Embark"] },
+        { word: "Believe", synonyms: ["Trust", "Accept", "Credit", "Assume", "Presume"] },
+        { word: "Benefit", synonyms: ["Advantage", "Profit", "Gain", "Asset", "Blessing"] },
+        { word: "Brave", synonyms: ["Courageous", "Fearless", "Valiant", "Bold", "Heroic"] },
+        { word: "Bright", synonyms: ["Radiant", "Luminous", "Shining", "Brilliant", "Vivid"] },
+        { word: "Build", synonyms: ["Construct", "Create", "Form", "Assemble", "Erect"] },
+        { word: "Busy", synonyms: ["Occupied", "Active", "Engaged", "Diligent", "Industrious"] },
+        
+        // C
+        { word: "Calm", synonyms: ["Peaceful", "Tranquil", "Serene", "Relaxed", "Composed"] },
+        { word: "Careful", synonyms: ["Cautious", "Attentive", "Thorough", "Prudent", "Vigilant"] },
+        { word: "Challenge", synonyms: ["Difficulty", "Obstacle", "Test", "Dare", "Provocation"] },
+        { word: "Change", synonyms: ["Alter", "Modify", "Transform", "Adjust", "Convert"] },
+        { word: "Clean", synonyms: ["Pure", "Fresh", "Spotless", "Sanitary", "Immaculate"] },
+        { word: "Clear", synonyms: ["Obvious", "Evident", "Transparent", "Plain", "Apparent"] },
+        { word: "Clever", synonyms: ["Smart", "Intelligent", "Bright", "Sharp", "Witty"] },
+        { word: "Close", synonyms: ["Shut", "Seal", "Near", "Adjacent", "Proximate"] },
+        { word: "Comfortable", synonyms: ["Cozy", "Pleasant", "Relaxing", "Snug", "Easy"] },
+        { word: "Common", synonyms: ["Usual", "Ordinary", "Frequent", "Regular", "Typical"] },
+        
+        // D
+        { word: "Dangerous", synonyms: ["Hazardous", "Risky", "Perilous", "Unsafe", "Treacherous"] },
+        { word: "Dark", synonyms: ["Dim", "Gloomy", "Shadowy", "Obscure", "Murky"] },
+        { word: "Decide", synonyms: ["Determine", "Choose", "Resolve", "Conclude", "Settle"] },
+        { word: "Deep", synonyms: ["Profound", "Bottomless", "Intense", "Thorough", "Serious"] },
+        { word: "Delicious", synonyms: ["Tasty", "Savory", "Appetizing", "Flavorful", "Delectable"] },
+        { word: "Different", synonyms: ["Distinct", "Various", "Diverse", "Dissimilar", "Unique"] },
+        { word: "Difficult", synonyms: ["Hard", "Challenging", "Tough", "Arduous", "Demanding"] },
+        { word: "Discover", synonyms: ["Find", "Uncover", "Reveal", "Detect", "Explore"] },
+        
+        // E
+        { word: "Eager", synonyms: ["Enthusiastic", "Keen", "Anxious", "Excited", "Impatient"] },
+        { word: "Early", synonyms: ["Premature", "Advanced", "Prompt", "Untimely", "Ahead"] },
+        { word: "Easy", synonyms: ["Simple", "Effortless", "Straightforward", "Facile", "Painless"] },
+        { word: "Effective", synonyms: ["Efficient", "Productive", "Potent", "Powerful", "Capable"] },
+        { word: "Elegant", synonyms: ["Graceful", "Refined", "Sophisticated", "Classy", "Stylish"] },
+        { word: "Empty", synonyms: ["Vacant", "Hollow", "Void", "Bare", "Deserted"] },
+        { word: "Enjoy", synonyms: ["Like", "Love", "Appreciate", "Delight", "Savor"] },
+        { word: "Enough", synonyms: ["Sufficient", "Adequate", "Plenty", "Ample", "Satisfactory"] },
+        { word: "Essential", synonyms: ["Necessary", "Vital", "Crucial", "Important", "Required"] },
+        { word: "Excellent", synonyms: ["Outstanding", "Superb", "Magnificent", "Exceptional", "Brilliant"] },
+        
+        // F
+        { word: "Famous", synonyms: ["Renowned", "Well-known", "Celebrated", "Prominent", "Notable"] },
+        { word: "Fast", synonyms: ["Quick", "Rapid", "Swift", "Speedy", "Brisk"] },
+        { word: "Favorite", synonyms: ["Preferred", "Beloved", "Cherished", "Dear", "Prized"] },
+        { word: "Fear", synonyms: ["Dread", "Terror", "Anxiety", "Panic", "Alarm"] },
+        { word: "Friendly", synonyms: ["Kind", "Nice", "Pleasant", "Affable", "Warm"] },
+        
+        // G
+        { word: "Generous", synonyms: ["Charitable", "Benevolent", "Kind", "Magnanimous", "Altruistic"] },
+        { word: "Gentle", synonyms: ["Tender", "Soft", "Kind", "Mild", "Calm"] },
+        { word: "Genuine", synonyms: ["Real", "Authentic", "Sincere", "Honest", "True"] },
+        { word: "Good", synonyms: ["Excellent", "Fine", "Superior", "Quality", "Splendid"] },
+        { word: "Great", synonyms: ["Large", "Big", "Enormous", "Huge", "Tremendous"] },
+        
+        // H
+        { word: "Happy", synonyms: ["Joyful", "Cheerful", "Delighted", "Pleased", "Content"] },
+        { word: "Hard", synonyms: ["Difficult", "Tough", "Challenging", "Strenuous", "Arduous"] },
+        { word: "Healthy", synonyms: ["Fit", "Robust", "Strong", "Vigorous", "Wholesome"] },
+        { word: "Helpful", synonyms: ["Useful", "Beneficial", "Supportive", "Constructive", "Valuable"] },
+        { word: "Honest", synonyms: ["Truthful", "Sincere", "Trustworthy", "Genuine", "Frank"] },
+        { word: "Hopeful", synonyms: ["Optimistic", "Confident", "Positive", "Encouraged", "Eager"] },
+        { word: "Huge", synonyms: ["Enormous", "Gigantic", "Massive", "Immense", "Colossal"] },
+        
+        // I
+        { word: "Idea", synonyms: ["Concept", "Notion", "Thought", "Theory", "Belief"] },
+        { word: "Important", synonyms: ["Significant", "Crucial", "Vital", "Essential", "Critical"] },
+        { word: "Improve", synonyms: ["Enhance", "Better", "Upgrade", "Refine", "Develop"] },
+        { word: "Increase", synonyms: ["Grow", "Expand", "Rise", "Boost", "Multiply"] },
+        { word: "Innocent", synonyms: ["Blameless", "Guiltless", "Pure", "Virtuous", "Clean"] },
+        { word: "Intelligent", synonyms: ["Smart", "Clever", "Bright", "Brilliant", "Sharp"] },
+        { word: "Interesting", synonyms: ["Fascinating", "Engaging", "Intriguing", "Captivating", "Compelling"] },
+        
+        // J
+        { word: "Joyful", synonyms: ["Happy", "Jubilant", "Delighted", "Ecstatic", "Elated"] },
+        { word: "Judicious", synonyms: ["Wise", "Prudent", "Sensible", "Discerning", "Thoughtful"] },
+        { word: "Just", synonyms: ["Fair", "Equitable", "Impartial", "Rightful", "Proper"] },
+        
+        // K
+        { word: "Keen", synonyms: ["Eager", "Enthusiastic", "Avid", "Passionate", "Intense"] },
+        { word: "Kind", synonyms: ["Compassionate", "Caring", "Gentle", "Benevolent", "Considerate"] },
+        
+        // L
+        { word: "Large", synonyms: ["Big", "Huge", "Enormous", "Massive", "Gigantic"] },
+        { word: "Lazy", synonyms: ["Idle", "Indolent", "Sluggish", "Lethargic", "Inactive"] },
+        { word: "Learn", synonyms: ["Study", "Master", "Understand", "Grasp", "Acquire"] },
+        { word: "Light", synonyms: ["Bright", "Luminous", "Illuminated", "Radiant", "Shiny"] },
+        { word: "Little", synonyms: ["Small", "Tiny", "Miniature", "Petite", "Minute"] },
+        { word: "Lively", synonyms: ["Energetic", "Vibrant", "Active", "Spirited", "Dynamic"] },
+        { word: "Lonely", synonyms: ["Isolated", "Alone", "Deserted", "Solitary", "Abandoned"] },
+        { word: "Lucky", synonyms: ["Fortunate", "Blessed", "Charmed", "Successful", "Prosperous"] },
+        
+        // M
+        { word: "Magic", synonyms: ["Enchantment", "Wizardry", "Sorcery", "Illusion", "Charm"] },
+        { word: "Magnificent", synonyms: ["Splendid", "Glorious", "Majestic", "Grand", "Imposing"] },
+        { word: "Major", synonyms: ["Significant", "Important", "Key", "Principal", "Leading"] },
+        { word: "Mature", synonyms: ["Adult", "Grown", "Ripe", "Developed", "Sophisticated"] },
+        { word: "Meaningful", synonyms: ["Significant", "Important", "Deep", "Profound", "Substantial"] },
+        { word: "Mild", synonyms: ["Gentle", "Soft", "Temperate", "Moderate", "Calm"] },
+        { word: "Modern", synonyms: ["Contemporary", "Current", "New", "Latest", "Up-to-date"] },
+        { word: "Modest", synonyms: ["Humble", "Reserved", "Unassuming", "Simple", "Shy"] },
+        
+        // N
+        { word: "Narrow", synonyms: ["Tight", "Limited", "Restricted", "Confined", "Slender"] },
+        { word: "Natural", synonyms: ["Normal", "Ordinary", "Typical", "Authentic", "Organic"] },
+        { word: "Necessary", synonyms: ["Essential", "Required", "Vital", "Crucial", "Mandatory"] },
+        { word: "Negative", synonyms: ["Pessimistic", "Cynical", "Unfavorable", "Adverse", "Bad"] },
+        { word: "New", synonyms: ["Fresh", "Modern", "Novel", "Original", "Recent"] },
+        { word: "Nice", synonyms: ["Pleasant", "Kind", "Agreeable", "Delightful", "Charming"] },
+        { word: "Noble", synonyms: ["Honorable", "Dignified", "Virtuous", "Esteemed", "Respected"] },
+        
+        // O
+        { word: "Obedient", synonyms: ["Compliant", "Dutiful", "Respectful", "Submissive", "Docile"] },
+        { word: "Obvious", synonyms: ["Clear", "Evident", "Apparent", "Manifest", "Noticeable"] },
+        { word: "Old", synonyms: ["Aged", "Ancient", "Elderly", "Mature", "Vintage"] },
+        { word: "Open", synonyms: ["Unlocked", "Accessible", "Available", "Unclosed", "Revealed"] },
+        { word: "Optimistic", synonyms: ["Hopeful", "Positive", "Confident", "Cheerful", "Bullish"] },
+        { word: "Ordinary", synonyms: ["Common", "Normal", "Usual", "Regular", "Average"] },
+        { word: "Outstanding", synonyms: ["Excellent", "Superb", "Exceptional", "Remarkable", "Magnificent"] },
+        
+        // P
+        { word: "Patient", synonyms: ["Tolerant", "Calm", "Forbearing", "Understanding", "Composed"] },
+        { word: "Peaceful", synonyms: ["Tranquil", "Calm", "Serene", "Quiet", "Harmonious"] },
+        { word: "Perfect", synonyms: ["Flawless", "Ideal", "Impeccable", "Excellent", "Supreme"] },
+        { word: "Polite", synonyms: ["Courteous", "Respectful", "Mannerly", "Civil", "Gracious"] },
+        { word: "Poor", synonyms: ["Impoverished", "Needy", "Destitute", "Penniless", "Broke"] },
+        { word: "Popular", synonyms: ["Famous", "Well-liked", "Trending", "Viral", "Celebrated"] },
+        { word: "Positive", synonyms: ["Optimistic", "Confident", "Hopeful", "Constructive", "Favorable"] },
+        { word: "Powerful", synonyms: ["Strong", "Mighty", "Potent", "Influential", "Dominant"] },
+        { word: "Precious", synonyms: ["Valuable", "Prized", "Cherished", "Dear", "Beloved"] },
+        { word: "Pretty", synonyms: ["Attractive", "Lovely", "Beautiful", "Cute", "Charming"] },
+        { word: "Proud", synonyms: ["Honored", "Pleased", "Satisfied", "Gratified", "Accomplished"] },
+        { word: "Pure", synonyms: ["Clean", "Unmixed", "Clear", "Fresh", "Untainted"] },
+        
+        // Q
+        { word: "Quick", synonyms: ["Fast", "Rapid", "Swift", "Speedy", "Brisk"] },
+        { word: "Quiet", synonyms: ["Silent", "Still", "Calm", "Peaceful", "Hushed"] },
+        
+        // R
+        { word: "Rapid", synonyms: ["Fast", "Quick", "Swift", "Speedy", "Brisk"] },
+        { word: "Rare", synonyms: ["Uncommon", "Scarce", "Infrequent", "Unusual", "Exceptional"] },
+        { word: "Real", synonyms: ["Actual", "True", "Genuine", "Authentic", "Legitimate"] },
+        { word: "Reliable", synonyms: ["Dependable", "Trustworthy", "Consistent", "Responsible", "Loyal"] },
+        { word: "Remarkable", synonyms: ["Extraordinary", "Notable", "Striking", "Impressive", "Exceptional"] },
+        { word: "Rich", synonyms: ["Wealthy", "Affluent", "Prosperous", "Opulent", "Well-off"] },
+        { word: "Right", synonyms: ["Correct", "Accurate", "Proper", "True", "Valid"] },
+        { word: "Rough", synonyms: ["Uneven", "Bumpy", "Coarse", "Harsh", "Jagged"] },
+        
+        // S
+        { word: "Sad", synonyms: ["Unhappy", "Sorrowful", "Depressed", "Miserable", "Downcast"] },
+        { word: "Safe", synonyms: ["Secure", "Protected", "Guarded", "Harmless", "Risk-free"] },
+        { word: "Same", synonyms: ["Identical", "Equal", "Alike", "Equivalent", "Matching"] },
+        { word: "Serious", synonyms: ["Grave", "Solemn", "Earnest", "Important", "Significant"] },
+        { word: "Sharp", synonyms: ["Keen", "Acute", "Pointed", "Intense", "Sudden"] },
+        { word: "Short", synonyms: ["Brief", "Small", "Tiny", "Compact", "Little"] },
+        { word: "Simple", synonyms: ["Easy", "Basic", "Plain", "Uncomplicated", "Straightforward"] },
+        { word: "Sincere", synonyms: ["Honest", "Genuine", "Truthful", "Real", "Heartfelt"] },
+        { word: "Skilled", synonyms: ["Expert", "Proficient", "Talented", "Able", "Competent"] },
+        { word: "Smart", synonyms: ["Intelligent", "Clever", "Bright", "Sharp", "Witty"] },
+        { word: "Smooth", synonyms: ["Even", "Flat", "Polished", "Silky", "Sleek"] },
+        { word: "Soft", synonyms: ["Tender", "Gentle", "Mild", "Smooth", "Supple"] },
+        { word: "Strong", synonyms: ["Powerful", "Sturdy", "Tough", "Robust", "Firm"] },
+        { word: "Stupid", synonyms: ["Dumb", "Foolish", "Unintelligent", "Silly", "Idiotic"] },
+        { word: "Successful", synonyms: ["Prosperous", "Triumphant", "Victorious", "Flourishing", "Thriving"] },
+        { word: "Sweet", synonyms: ["Sugary", "Honeyed", "Candy-like", "Pleasant", "Fragrant"] },
+        
+        // T
+        { word: "Talented", synonyms: ["Gifted", "Skilled", "Able", "Proficient", "Expert"] },
+        { word: "Tall", synonyms: ["High", "Lofty", "Towering", "Big", "Giant"] },
+        { word: "Tasty", synonyms: ["Delicious", "Savory", "Appetizing", "Flavorful", "Yummy"] },
+        { word: "Tender", synonyms: ["Soft", "Gentle", "Kind", "Sensitive", "Caring"] },
+        { word: "Terrible", synonyms: ["Awful", "Horrible", "Dreadful", "Bad", "Poor"] },
+        { word: "Thankful", synonyms: ["Grateful", "Appreciative", "Obliged", "Indebted", "Blessed"] },
+        { word: "Thoughtful", synonyms: ["Considerate", "Caring", "Attentive", "Reflective", "Pensive"] },
+        { word: "Tidy", synonyms: ["Neat", "Orderly", "Clean", "Organized", "Systematic"] },
+        { word: "Tiny", synonyms: ["Small", "Little", "Minute", "Miniature", "Petite"] },
+        { word: "Tired", synonyms: ["Exhausted", "Fatigued", "Weary", "Sleepy", "Drained"] },
+        { word: "Tough", synonyms: ["Hard", "Strong", "Sturdy", "Difficult", "Challenging"] },
+        { word: "True", synonyms: ["Real", "Actual", "Genuine", "Authentic", "Correct"] },
+        { word: "Trustworthy", synonyms: ["Reliable", "Dependable", "Honest", "Loyal", "Faithful"] },
+        
+        // U
+        { word: "Ugly", synonyms: ["Unattractive", "Hideous", "Plain", "Unsightly", "Grotesque"] },
+        { word: "Unable", synonyms: ["Incapable", "Incompetent", "Unqualified", "Powerless", "Helpless"] },
+        { word: "Uncertain", synonyms: ["Unsure", "Doubtful", "Questionable", "Vague", "Ambiguous"] },
+        { word: "Understanding", synonyms: ["Compassionate", "Empathetic", "Sympathetic", "Tolerant", "Kind"] },
+        { word: "Unique", synonyms: ["Distinctive", "Special", "Rare", "Unusual", "One-of-a-kind"] },
+        { word: "Unusual", synonyms: ["Rare", "Strange", "Odd", "Different", "Unique"] },
+        { word: "Upset", synonyms: ["Distressed", "Worried", "Troubled", "Bothered", "Unhappy"] },
+        { word: "Useful", synonyms: ["Helpful", "Beneficial", "Practical", "Valuable", "Functional"] },
+        { word: "Usual", synonyms: ["Common", "Normal", "Regular", "Typical", "Ordinary"] },
+        
+        // V
+        { word: "Valuable", synonyms: ["Precious", "Costly", "Priceless", "Expensive", "Worthwhile"] },
+        { word: "Various", synonyms: ["Different", "Diverse", "Varied", "Assorted", "Mixed"] },
+        { word: "Vast", synonyms: ["Huge", "Enormous", "Immense", "Massive", "Tremendous"] },
+        { word: "Very", synonyms: ["Extremely", "Exceedingly", "Highly", "Truly", "Absolutely"] },
+        { word: "Victorious", synonyms: ["Triumphant", "Winning", "Successful", "Champion", "Conquering"] },
+        { word: "Violent", synonyms: ["Aggressive", "Brutal", "Fierce", "Intense", "Wild"] },
+        { word: "Visible", synonyms: ["Clear", "Obvious", "Apparent", "Noticeable", "Observable"] },
+        { word: "Vital", synonyms: ["Essential", "Crucial", "Important", "Necessary", "Critical"] },
+        
+        // W
+        { word: "Warm", synonyms: ["Hot", "Heated", "Balmy", "Temperate", "Friendly"] },
+        { word: "Weak", synonyms: ["Frail", "Feeble", "Fragile", "Delicate", "Powerless"] },
+        { word: "Wealthy", synonyms: ["Rich", "Affluent", "Prosperous", "Well-off", "Loaded"] },
+        { word: "Wide", synonyms: ["Broad", "Large", "Extensive", "Spacious", "Ample"] },
+        { word: "Willing", synonyms: ["Ready", "Prepared", "Eager", "Disposed", "Inclined"] },
+        { word: "Wise", synonyms: ["Smart", "Intelligent", "Sensible", "Prudent", "Judicious"] },
+        { word: "Wonderful", synonyms: ["Amazing", "Marvelous", "Fantastic", "Excellent", "Incredible"] },
+        { word: "Worried", synonyms: ["Anxious", "Concerned", "Nervous", "Distressed", "Troubled"] },
+        { word: "Worthwhile", synonyms: ["Valuable", "Beneficial", "Rewarding", "Productive", "Useful"] },
+        { word: "Wrong", synonyms: ["Incorrect", "False", "Mistaken", "Erroneous", "Inaccurate"] },
+        
+        // X
+        { word: "Xenial", synonyms: ["Friendly", "Hospitable", "Warm", "Gracious", "Welcoming"] },
+        
+        // Y
+        { word: "Young", synonyms: ["Youthful", "Junior", "Immature", "Fresh", "New"] },
+        
+        // Z
+        { word: "Zealous", synonyms: ["Enthusiastic", "Passionate", "Fervent", "Ardent", "Devoted"] }
+    ];
+
+    // Add more words to reach 300 (adding additional common words)
+    const additionalWords = [
+        { word: "Accepting", synonyms: ["Tolerant", "Open-minded", "Receptive", "Broad-minded", "Understanding"] },
+        { word: "Accurate", synonyms: ["Correct", "Precise", "Exact", "Right", "True"] },
+        { word: "Achievement", synonyms: ["Accomplishment", "Success", "Attainment", "Feat", "Triumph"] },
+        { word: "Admire", synonyms: ["Respect", "Appreciate", "Esteem", "Honor", "Look up to"] },
+        { word: "Adventure", synonyms: ["Expedition", "Journey", "Quest", "Exploit", "Venture"] },
+        { word: "Affectionate", synonyms: ["Loving", "Warm", "Tender", "Caring", "Devoted"] },
+        { word: "Agreeable", synonyms: ["Pleasant", "Nice", "Enjoyable", "Pleasing", "Satisfying"] },
+        { word: "Alert", synonyms: ["Vigilant", "Watchful", "Attentive", "Observant", "Awake"] }
+    ];
+    
+    // Combine all words
+    const allWords = [...vocabulary, ...additionalWords];
+    
+    // State variables
+    let currentFilter = "all";
+    let searchQuery = "";
+    let currentActiveWord = null;
+
+    // DOM elements
+    const wordsGrid = document.getElementById("wordsGrid");
+    const synonymsContainer = document.getElementById("synonymsPanelContainer");
+    const searchInput = document.getElementById("searchInput");
+    const filterButtons = document.querySelectorAll(".filter-btn");
+
+    // Helper functions
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function getSynonymsForWord(wordText) {
+        const found = allWords.find(item => item.word.toLowerCase() === wordText.toLowerCase());
+        return found ? found.synonyms : ["No synonyms found", "Try another word"];
+    }
+
+    function filterWords() {
+        return allWords.filter(wordObj => {
+            const word = wordObj.word.toLowerCase();
+            const matchesSearch = word.includes(searchQuery.toLowerCase());
+            
+            let matchesFilter = true;
+            if (currentFilter !== "all") {
+                const firstLetter = wordObj.word[0].toUpperCase();
+                if (currentFilter === "A-D") matchesFilter = "ABCD".includes(firstLetter);
+                else if (currentFilter === "E-H") matchesFilter = "EFGH".includes(firstLetter);
+                else if (currentFilter === "I-L") matchesFilter = "IJKL".includes(firstLetter);
+                else if (currentFilter === "M-P") matchesFilter = "MNOP".includes(firstLetter);
+                else if (currentFilter === "Q-T") matchesFilter = "QRST".includes(firstLetter);
+                else if (currentFilter === "U-Z") matchesFilter = "UVWXYZ".includes(firstLetter);
+            }
+            
+            return matchesSearch && matchesFilter;
+        });
+    }
+
+    function renderSynonymsPanel(word) {
+        const synonyms = getSynonymsForWord(word);
+        const panelHtml = `
+            <div class="synonyms-panel" id="activeSynonymsPanel">
+                <div class="synonyms-header">
+                    <h3>🔤 Synonyms for "${word}"</h3>
+                    <button class="close-syn" id="closeSynonymsBtn">✕ Close</button>
+                </div>
+                <div class="synonyms-list">
+                    ${synonyms.map(syn => `<div class="synonym-badge">${escapeHtml(syn)}</div>`).join('')}
+                </div>
+            </div>
+        `;
+        synonymsContainer.innerHTML = panelHtml;
+        
+        const closeBtn = document.getElementById("closeSynonymsBtn");
+        if (closeBtn) {
+            closeBtn.addEventListener("click", () => {
+                synonymsContainer.innerHTML = "";
+                removeActiveHighlight();
+                currentActiveWord = null;
+            });
+        }
+    }
+
+    function removeActiveHighlight() {
+        const allCards = document.querySelectorAll('.word-card');
+        allCards.forEach(card => card.classList.remove('active-word'));
+    }
+
+    function highlightWordCard(wordText) {
+        removeActiveHighlight();
+        const cards = document.querySelectorAll('.word-card');
+        for (let card of cards) {
+            if (card.getAttribute('data-word').toLowerCase() === wordText.toLowerCase()) {
+                card.classList.add('active-word');
+                break;
+            }
+        }
+    }
+
+    function onWordClick(wordText) {
+        currentActiveWord = wordText;
+        renderSynonymsPanel(wordText);
+        highlightWordCard(wordText);
+        
+        // Scroll to synonyms panel on mobile
+        const panel = document.getElementById("activeSynonymsPanel");
+        if (panel) {
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    function buildWordGrid() {
+        const filtered = filterWords();
+        
+        if (filtered.length === 0) {
+            wordsGrid.innerHTML = '<div class="no-results">🔍 No words found. Try a different search!</div>';
+            return;
+        }
+        
+        wordsGrid.innerHTML = '';
+        filtered.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'word-card';
+            card.setAttribute('data-word', item.word);
+            card.innerHTML = `
+                <div class="main-word">${escapeHtml(item.word)}</div>
+                <div class="click-hint">🔍 tap for synonyms</div>
+            `;
+            card.addEventListener('click', () => onWordClick(item.word));
+            wordsGrid.appendChild(card);
+        });
+    }
+
+    // Event listeners
+    searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        buildWordGrid();
+        synonymsContainer.innerHTML = "";
+        removeActiveHighlight();
+    });
+
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = btn.getAttribute('data-filter');
+            buildWordGrid();
+            synonymsContainer.innerHTML = "";
+            removeActiveHighlight();
+        });
+    });
+
+    // Close panel when clicking outside (optional)
+    document.addEventListener('click', (e) => {
+        const panel = document.getElementById('activeSynonymsPanel');
+        if (panel && !panel.contains(e.target) && !e.target.closest('.word-card')) {
+            synonymsContainer.innerHTML = "";
+            removeActiveHighlight();
+        }
+    });
+
+    // Initialize
+    buildWordGrid();
+</script>
+</body>
+</html>
