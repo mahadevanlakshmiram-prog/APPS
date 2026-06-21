@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CAGR Calculator · start & end dates + prices</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #f6f9fc 0%, #e6edf5 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .card {
+            max-width: 680px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border-radius: 2.5rem;
+            padding: 2.2rem 2rem 2.5rem;
+            box-shadow: 0 20px 40px -12px rgba(0, 20, 40, 0.35),
+                        0 8px 24px -6px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.2s;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #0b1e33;
+            margin-top: 0.2rem;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .subhead {
+            font-size: 0.95rem;
+            color: #2c4a6a;
+            margin-bottom: 2.2rem;
+            border-left: 4px solid #3b7bc9;
+            padding-left: 1rem;
+            background: rgba(59, 123, 201, 0.04);
+            border-radius: 0 12px 12px 0;
+            line-height: 1.4;
+        }
+        .input-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem 1.8rem;
+            margin-bottom: 1.8rem;
+        }
+        .input-group {
+            flex: 1 1 calc(50% - 1.8rem);
+            min-width: 180px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: #1f3b58;
+            margin-bottom: 0.25rem;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            font-size: 1rem;
+            background: white;
+            border: 1px solid #ccdbe9;
+            border-radius: 1.2rem;
+            transition: 0.2s;
+            color: #0b1e33;
+            font-weight: 500;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #2d6fb0;
+            box-shadow: 0 0 0 4px rgba(45, 111, 176, 0.15);
+            background: #ffffff;
+        }
+        .input-group input[type="date"] {
+            cursor: pointer;
+        }
+        .input-group input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        .input-group input[type="number"]::-webkit-outer-spin-button,
+        .input-group input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .date-hint {
+            font-size: 0.7rem;
+            color: #4f6f8f;
+            margin-top: 0.2rem;
+            padding-left: 0.2rem;
+            opacity: 0.8;
+        }
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin: 1.8rem 0 1rem;
+        }
+        .calc-btn {
+            background: #1a3a5f;
+            border: none;
+            padding: 0.85rem 2.4rem;
+            border-radius: 2.5rem;
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(20, 60, 120, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: 0.01em;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .calc-btn:hover {
+            background: #0f2a46;
+            transform: scale(1.01);
+            box-shadow: 0 8px 18px rgba(10, 40, 80, 0.3);
+        }
+        .calc-btn:active {
+            transform: scale(0.97);
+        }
+        .reset-btn {
+            background: transparent;
+            border: 1px solid #b6ccdf;
+            padding: 0.7rem 1.8rem;
+            border-radius: 2.5rem;
+            font-weight: 500;
+            color: #1f3b58;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.95rem;
+        }
+        .reset-btn:hover {
+            background: rgba(0, 0, 0, 0.03);
+            border-color: #7f9bb9;
+        }
+        .result-panel {
+            background: #ffffffcc;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border-radius: 1.8rem;
+            padding: 1.6rem 1.8rem;
+            margin-top: 1.8rem;
+            border: 1px solid rgba(255,255,255,0.7);
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.02);
+        }
+        .result-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            row-gap: 0.5rem;
+        }
+        .cagr-badge {
+            font-size: 2.7rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #0b2b47;
+            line-height: 1.1;
+        }
+        .cagr-badge small {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #2c5a7a;
+            margin-left: 0.2rem;
+        }
+        .cagr-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1f3b58;
+            background: #e3edf6;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+        }
+        .detail-stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 1.4rem;
+            padding-top: 1rem;
+            border-top: 1px solid #d6e3f0;
+            gap: 0.8rem;
+        }
+        .stat-item {
+            flex: 1 0 auto;
+        }
+        .stat-item .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #4f6f8f;
+        }
+        .stat-item .stat-value {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: #0b1e33;
+        }
+        .stat-item .stat-value .currency {
+            font-weight: 400;
+            color: #3b5f7f;
+        }
+        .error-msg {
+            color: #b53b3b;
+            background: #ffe8e8;
+            border-radius: 2rem;
+            padding: 0.4rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 0.3rem;
+            border: 1px solid #f5c2c2;
+        }
+        .footnote {
+            margin-top: 1.2rem;
+            font-size: 0.75rem;
+            color: #3f6383;
+            text-align: right;
+            opacity: 0.7;
+            letter-spacing: 0.01em;
+        }
+        @media (max-width: 500px) {
+            .card { padding: 1.5rem; }
+            .input-group { flex: 1 1 100%; }
+            .cagr-badge { font-size: 2.2rem; }
+            .action-row { flex-direction: column; align-items: stretch; }
+            .calc-btn { justify-content: center; }
+            .reset-btn { text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>
+        <span>📈 CAGR</span>
+        <span style="font-size: 1.2rem; font-weight: 400; color: #2f5d85;">calculator</span>
+    </h1>
+    <div class="subhead">
+        Compound annual growth rate · from start to end date
+    </div>
+
+    <!-- INPUTS -->
+    <div class="input-grid">
+        <div class="input-group">
+            <label for="startDate">📅 Start date</label>
+            <input type="date" id="startDate" value="2020-01-01" />
+            <div class="date-hint">beginning of investment period</div>
+        </div>
+        <div class="input-group">
+            <label for="endDate">📅 End date</label>
+            <input type="date" id="endDate" value="2025-01-01" />
+            <div class="date-hint">end of investment period</div>
+        </div>
+        <div class="input-group">
+            <label for="startPrice">💰 Start price</label>
+            <input type="number" id="startPrice" value="100.00" step="0.01" min="0.0001" />
+        </div>
+        <div class="input-group">
+            <label for="endPrice">💰 End price</label>
+            <input type="number" id="endPrice" value="180.00" step="0.01" min="0.0001" />
+        </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="action-row">
+        <button class="calc-btn" id="calculateBtn">⚡ Calculate CAGR</button>
+        <button class="reset-btn" id="resetBtn">↺ reset defaults</button>
+    </div>
+
+    <!-- RESULT / ERROR -->
+    <div id="resultPanel" class="result-panel">
+        <div id="resultContent">
+            <div class="result-row">
+                <span class="cagr-label">📊 CAGR</span>
+                <span class="cagr-badge" id="cagrDisplay">12.47<small>%</small></span>
+            </div>
+            <div class="detail-stats">
+                <div class="stat-item">
+                    <div class="stat-label">holding period</div>
+                    <div class="stat-value" id="periodDisplay">5.0 years</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">total return</div>
+                    <div class="stat-value" id="totalReturnDisplay">+80.00<small class="currency">%</small></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">price change</div>
+                    <div class="stat-value" id="priceChangeDisplay">+80.00</div>
+                </div>
+            </div>
+        </div>
+        <div id="errorMessage" class="error-msg" style="display: none;"></div>
+    </div>
+    <div class="footnote">CAGR = (End/Start)^(1/years) − 1  ·  dates inclusive</div>
+</div>
+
+<script>
+    (function() {
+        "use strict";
+
+        // DOM refs
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const startPriceInput = document.getElementById('startPrice');
+        const endPriceInput = document.getElementById('endPrice');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        const cagrDisplay = document.getElementById('cagrDisplay');
+        const periodDisplay = document.getElementById('periodDisplay');
+        const totalReturnDisplay = document.getElementById('totalReturnDisplay');
+        const priceChangeDisplay = document.getElementById('priceChangeDisplay');
+        const errorMessage = document.getElementById('errorMessage');
+        const resultContent = document.getElementById('resultContent');
+
+        // default values (same as placeholders)
+        const DEFAULTS = {
+            startDate: '2020-01-01',
+            endDate: '2025-01-01',
+            startPrice: 100.00,
+            endPrice: 180.00
+        };
+
+        // ---------- helpers ----------
+        function parseDate(str) {
+            const parts = str.split('-');
+            if (parts.length !== 3) return null;
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1; // 0-index
+            const day = parseInt(parts[2], 10);
+            if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
+            return new Date(year, month, day);
+        }
+
+        // fractional year difference (days / 365.2422)
+        function yearsBetween(date1, date2) {
+            if (!date1 || !date2) return NaN;
+            const msDiff = date2.getTime() - date1.getTime();
+            if (msDiff < 0) return NaN;          // end before start
+            const days = msDiff / (1000 * 60 * 60 * 24);
+            return days / 365.2422;              // average tropical year
+        }
+
+        // format number with 2 decimals, add sign
+        function formatPercent(value) {
+            if (!isFinite(value)) return '—';
+            const sign = value >= 0 ? '+' : '';
+            return sign + value.toFixed(2) + '%';
+        }
+
+        function formatPrice(value) {
+            if (!isFinite(value)) return '—';
+            return value.toFixed(2);
+        }
+
+        // ---------- main calculation ----------
+        function calculateCAGR() {
+            // 1. read & validate
+            const startDateStr = startDateInput.value;
+            const endDateStr = endDateInput.value;
+            const startPriceVal = parseFloat(startPriceInput.value);
+            const endPriceVal = parseFloat(endPriceInput.value);
+
+            // reset error
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+
+            // validate dates
+            const startDate = parseDate(startDateStr);
+            const endDate = parseDate(endDateStr);
+            if (!startDate || !endDate) {
+                showError('Please enter valid dates (YYYY-MM-DD).');
+                return;
+            }
+            if (endDate.getTime() <= startDate.getTime()) {
+                showError('End date must be after start date.');
+                return;
+            }
+
+            // validate prices
+            if (isNaN(startPriceVal) || startPriceVal <= 0) {
+                showError('Start price must be a positive number.');
+                return;
+            }
+            if (isNaN(endPriceVal) || endPriceVal <= 0) {
+                showError('End price must be a positive number.');
+                return;
+            }
+
+            // 2. compute years
+            const years = yearsBetween(startDate, endDate);
+            if (!isFinite(years) || years <= 0) {
+                showError('Invalid date range – cannot compute years.');
+                return;
+            }
+
+            // 3. CAGR formula: (end/start)^(1/years) - 1
+            const ratio = endPriceVal / startPriceVal;
+            const cagr = Math.pow(ratio, 1 / years) - 1;
+
+            // 4. additional stats
+            const totalReturn = (endPriceVal - startPriceVal) / startPriceVal; // as fraction
+            const priceChange = endPriceVal - startPriceVal;
+
+            // 5. display results
+            if (!isFinite(cagr)) {
+                showError('Calculation overflow. Please check values.');
+                return;
+            }
+
+            // update DOM
+            cagrDisplay.innerHTML = (cagr * 100).toFixed(2) + '<small>%</small>';
+            periodDisplay.textContent = years.toFixed(2) + ' years';
+            totalReturnDisplay.innerHTML = formatPercent(totalReturn * 100);
+            priceChangeDisplay.textContent = (priceChange >= 0 ? '+' : '') + formatPrice(priceChange);
+
+            // ensure error is hidden
+            errorMessage.style.display = 'none';
+        }
+
+        function showError(msg) {
+            errorMessage.textContent = msg;
+            errorMessage.style.display = 'inline-block';
+            // blank out some results but keep layout
+            cagrDisplay.innerHTML = '—';
+            periodDisplay.textContent = '—';
+            totalReturnDisplay.innerHTML = '—';
+            priceChangeDisplay.textContent = '—';
+        }
+
+        // ---------- reset to defaults ----------
+        function resetToDefaults() {
+            startDateInput.value = DEFAULTS.startDate;
+            endDateInput.value = DEFAULTS.endDate;
+            startPriceInput.value = DEFAULTS.startPrice;
+            endPriceInput.value = DEFAULTS.endPrice;
+            // recalc
+            calculateCAGR();
+        }
+
+        // ---------- attach events ----------
+        calculateBtn.addEventListener('click', calculateCAGR);
+        resetBtn.addEventListener('click', resetToDefaults);
+
+        // auto-run on page load with defaults
+        window.addEventListener('DOMContentLoaded', function() {
+            // set default values (already in HTML, but ensure they match DEFAULTS)
+            startDateInput.value = DEFAULTS.startDate;
+            endDateInput.value = DEFAULTS.endDate;
+            startPriceInput.value = DEFAULTS.startPrice;
+            endPriceInput.value = DEFAULTS.endPrice;
+            calculateCAGR();
+        });
+
+        // optional: recalc on Enter key in inputs (convenience)
+        const inputs = [startDateInput, endDateInput, startPriceInput, endPriceInput];
+        inputs.forEach(input => {
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    calculateCAGR();
+                }
+            });
+        });
+
+        // also recalc if user blurs any input (optional)
+        inputs.forEach(input => {
+            input.addEventListener('change', calculateCAGR);
+        });
+
+    })();
+</script>
+</body>
+</html>
