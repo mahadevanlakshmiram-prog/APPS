@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>BMI Calculator · Lakshmiram Mahadevan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #e0eafc 0%, #cfdef3 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .bmi-card {
+            max-width: 580px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .brand-header {
+            background: #1e2c3a;
+            padding: 1.3rem 2rem;
+            text-align: center;
+        }
+
+        .brand-header h1 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+            color: #f5f9ff;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .instruction-box {
+            background: #f0f4fa;
+            border-radius: 1.5rem;
+            padding: 1rem 1.4rem;
+            margin-bottom: 1.8rem;
+            border-left: 5px solid #3b7cbf;
+        }
+
+        .instruction-detail {
+            font-size: 0.85rem;
+            color: #2c3e50;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            margin-bottom: 1.8rem;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #1e2f3c;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            font-size: 1rem;
+            border: 1.5px solid #cddfe7;
+            border-radius: 1.2rem;
+            background: white;
+            transition: 0.2s;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: #2c7cb6;
+            box-shadow: 0 0 0 3px rgba(44, 124, 182, 0.2);
+        }
+
+        .small-note {
+            font-size: 0.7rem;
+            color: #5f7f9c;
+            margin-top: 5px;
+            margin-left: 0.5rem;
+        }
+
+        .dual-row {
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+        }
+        .dual-row .input-group {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        button.calc-btn {
+            background: #1e2c3a;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 0.9rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 0.5rem 0 1.5rem 0;
+            font-family: inherit;
+        }
+        button.calc-btn:hover {
+            background: #113044;
+            transform: scale(0.98);
+        }
+
+        .result-card {
+            background: #eef3fc;
+            border-radius: 1.6rem;
+            padding: 1.2rem 1.5rem;
+        }
+
+        .bmi-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #0f2c3b;
+            line-height: 1.2;
+        }
+
+        .bmi-category {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 6px;
+            color: #2c5a6e;
+        }
+
+        .target-weight-line {
+            background: #e0ecf9;
+            border-radius: 1rem;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 8px;
+            border-left: 3px solid #2c7cb6;
+        }
+
+        .target-label {
+            font-weight: 700;
+            color: #1a567a;
+            background: #ffffffaa;
+            padding: 0.2rem 0.7rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+        }
+
+        .target-number {
+            font-weight: 800;
+            color: #0e4b6e;
+            font-size: 1.1rem;
+        }
+
+        .advice-message {
+            margin-top: 1rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #caddf0;
+            font-size: 0.9rem;
+            color: #2c4c6c;
+            background: #ffffffb3;
+            border-radius: 1rem;
+            padding: 0.8rem 1rem;
+            line-height: 1.45;
+        }
+
+        .footnote {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 1.2rem;
+            color: #6b89a5;
+            padding-top: 0.8rem;
+            border-top: 1px solid #e2edf7;
+        }
+
+        @media (max-width: 500px) {
+            .content { padding: 1.3rem; }
+            .bmi-value { font-size: 1.8rem; }
+            .brand-header h1 { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="bmi-card">
+    <div class="brand-header">
+        <h1>BODY MASS INDEX CALCULATOR</h1>
+    </div>
+    <div class="content">
+        <div class="instruction-box">
+            <div class="instruction-detail">
+                🧭 <strong>Simple instructions</strong><br>
+                1️⃣ Enter your <strong>height in centimeters (cm)</strong><br>
+                2️⃣ Enter your <strong>weight in kilograms (kg)</strong><br>
+                3️⃣ Press <strong>Calculate BMI</strong> → get your result + target weight + subtle advice
+            </div>
+        </div>
+
+        <div class="dual-row">
+            <div class="input-group">
+                <label>📐 Height (centimeters)</label>
+                <input type="number" step="any" id="heightInput" class="input-field" placeholder="e.g., 170" value="180">
+                <div class="small-note">cm (e.g., 162, 175, 180)</div>
+            </div>
+            <div class="input-group">
+                <label>⚖️ Weight (kilograms)</label>
+                <input type="number" step="any" id="weightInput" class="input-field" placeholder="e.g., 70" value="84">
+                <div class="small-note">kg (e.g., 68.5, 84)</div>
+            </div>
+        </div>
+
+        <button class="calc-btn" id="calcBtn">✨ Calculate BMI ✨</button>
+
+        <div class="result-card">
+            <div class="bmi-value" id="bmiNumber">—</div>
+            <div class="bmi-category" id="bmiCategory">awaiting measures</div>
+            
+            <div class="target-weight-line">
+                <span class="target-label">🎯 healthy target (BMI 24.9 top end)</span>
+                <span class="target-number" id="targetWeightValue">—</span>
+                <span style="font-size:0.75rem; color:#2c6285;"> ↳ upper limit of normal weight range</span>
+            </div>
+            
+            <div class="advice-message" id="adviceMsg">
+                <span class="subtle-comment">🌸</span> Enter your height and weight, then press calculate.
+            </div>
+        </div>
+        <div class="footnote">
+            BMI is a screening tool, not a direct measure of body fat or health.<br>
+            Target weight = BMI 24.9 (top end of healthy range).<br>
+            <strong>✅ Example:</strong> 180 cm / 84 kg → BMI 25.9 (Overweight) → Target 80.7 kg
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const heightInput = document.getElementById('heightInput');
+        const weightInput = document.getElementById('weightInput');
+        const calcButton = document.getElementById('calcBtn');
+        const bmiNumberSpan = document.getElementById('bmiNumber');
+        const bmiCategorySpan = document.getElementById('bmiCategory');
+        const adviceMsgDiv = document.getElementById('adviceMsg');
+        const targetWeightSpan = document.getElementById('targetWeightValue');
+
+        // BMI calculation
+        function computeBMI(cm, kg) {
+            if (!cm || !kg) return null;
+            if (cm <= 0 || kg <= 0) return null;
+            let heightMeters = cm / 100;
+            let bmi = kg / (heightMeters * heightMeters);
+            if (!isFinite(bmi)) return null;
+            return Math.round(bmi * 10) / 10;
+        }
+
+        // Target weight for top of healthy range (BMI = 24.9)
+        function getTargetWeightKg(cm) {
+            if (!cm || cm <= 0) return null;
+            let heightMeters = cm / 100;
+            const targetBMI = 24.9;
+            let targetKg = targetBMI * (heightMeters * heightMeters);
+            return Math.round(targetKg * 10) / 10;
+        }
+
+        // Get category and subtle advice
+        function getBMICategoryAndAdvice(bmi, targetKg, currentKg) {
+            if (bmi === null) {
+                return { category: "⚠️ Invalid input", advice: "Check your numbers — height and weight must be positive." };
+            }
+            
+            let category = "";
+            let adviceIntro = "";
+            let subtleNote = "";
+            
+            if (bmi < 16.0) {
+                category = "Severe thinness";
+                adviceIntro = "Significant underweight range.";
+                subtleNote = "✨ A gentle nudge: consider speaking with a nutritionist — small, consistent nourishment works wonders.";
+            } 
+            else if (bmi >= 16.0 && bmi < 17.0) {
+                category = "Moderate thinness";
+                adviceIntro = "Underweight range.";
+                subtleNote = "🌱 Leafy greens, healthy fats, and regular meals can help build a gentle upward trend.";
+            }
+            else if (bmi >= 17.0 && bmi < 18.5) {
+                category = "Mild thinness";
+                adviceIntro = "Slightly below healthy weight.";
+                subtleNote = "🕊️ A little more fuel? Adding nutrient-dense snacks may make a subtle but meaningful difference.";
+            }
+            else if (bmi >= 18.5 && bmi < 25) {
+                category = "Normal (healthy range)";
+                adviceIntro = "Your BMI is within the ideal zone.";
+                if (bmi >= 24 && bmi < 25) {
+                    subtleNote = "🌿 You're near the top of healthy range — maintaining is great. Your target aligns perfectly.";
+                } else {
+                    subtleNote = "🌿 Great balance — keep nurturing your body with movement and wholesome food. Small daily habits matter.";
+                }
+            }
+            else if (bmi >= 25 && bmi < 30) {
+                category = "Overweight";
+                adviceIntro = "Overweight category.";
+                if (targetKg !== null && currentKg > 0) {
+                    let diffKg = currentKg - targetKg;
+                    if (diffKg > 0) {
+                        subtleNote = `🌊 Small shifts — reducing about ${diffKg.toFixed(1)} kg toward ${targetKg.toFixed(1)} kg supports wellness. Even modest steps help.`;
+                    } else {
+                        subtleNote = "🌊 Small lifestyle adjustments (daily walks, veggie focus) often bring gentle change.";
+                    }
+                } else {
+                    subtleNote = "🌊 Small shifts like increasing daily steps or adding vegetables can make a difference.";
+                }
+            }
+            else if (bmi >= 30 && bmi < 35) {
+                category = "Obesity class I";
+                adviceIntro = "Moderate elevation above healthy weight.";
+                if (targetKg !== null && currentKg > 0) {
+                    let diffKg = currentKg - targetKg;
+                    subtleNote = `🍃 Even subtle adjustments matter. Working toward ${targetKg.toFixed(1)} kg (${diffKg.toFixed(1)} kg less) is a meaningful reference.`;
+                } else {
+                    subtleNote = "🍃 Consistent routine, hydration, and light activity create ripple effects.";
+                }
+            }
+            else if (bmi >= 35 && bmi < 40) {
+                category = "Obesity class II";
+                adviceIntro = "Higher weight range.";
+                if (targetKg !== null) {
+                    subtleNote = `💙 Respect your journey. Gradual steps toward ${targetKg.toFixed(1)} kg can support long-term wellness. Seek support if needed.`;
+                } else {
+                    subtleNote = "💙 Small consistent choices matter more than intensity. Professional guidance can be supportive.";
+                }
+            }
+            else if (bmi >= 40) {
+                category = "Obesity class III";
+                adviceIntro = "Very high BMI range.";
+                if (targetKg !== null) {
+                    subtleNote = `🌟 Kindness first. Long-term reference: ~ ${targetKg.toFixed(1)} kg marks upper healthy boundary. Micro-habits lead to positive drift.`;
+                } else {
+                    subtleNote = "🌟 You deserve care without judgment. Even micro-habits over months create change.";
+                }
+            }
+            else {
+                category = "Range";
+                adviceIntro = "Monitor patterns.";
+                subtleNote = "Stay curious about your wellbeing.";
+            }
+            
+            return { category, advice: `${adviceIntro} ${subtleNote}` };
+        }
+
+        function updateDisplay() {
+            let rawCm = parseFloat(heightInput.value);
+            let rawKg = parseFloat(weightInput.value);
+            
+            if (isNaN(rawCm) || rawCm <= 0) {
+                setResultPlaceholder("⚠️ Invalid height", "Height required", "Please enter a valid height in centimeters (e.g., 170).");
+                targetWeightSpan.innerText = "—";
+                return;
+            }
+            if (isNaN(rawKg) || rawKg <= 0) {
+                setResultPlaceholder("⚠️ Invalid weight", "Weight required", "Please enter a valid weight in kilograms (e.g., 70).");
+                targetWeightSpan.innerText = "—";
+                return;
+            }
+            if (rawCm < 50 || rawCm > 300) {
+                setResultPlaceholder("⚠️ Unusual height", "Check height", "Height should be between 50 cm and 300 cm.");
+                targetWeightSpan.innerText = "—";
+                return;
+            }
+            if (rawKg < 10 || rawKg > 500) {
+                setResultPlaceholder("⚠️ Unusual weight", "Check weight", "Weight should be between 10 kg and 500 kg.");
+                targetWeightSpan.innerText = "—";
+                return;
+            }
+            
+            // Calculate target weight
+            const targetKg = getTargetWeightKg(rawCm);
+            targetWeightSpan.innerText = targetKg !== null ? `${targetKg} kg` : "—";
+            
+            // Calculate BMI
+            const bmi = computeBMI(rawCm, rawKg);
+            if (bmi === null || isNaN(bmi)) {
+                setResultPlaceholder("Calculation error", "Try again", "Something went wrong. Check your numbers.");
+                return;
+            }
+            
+            const { category, advice } = getBMICategoryAndAdvice(bmi, targetKg, rawKg);
+            bmiNumberSpan.innerHTML = `${bmi} <span style="font-size: 1rem; font-weight: normal;">kg/m²</span>`;
+            bmiCategorySpan.innerHTML = category;
+            adviceMsgDiv.innerHTML = `<span class="subtle-comment">💬 subtle note</span> · ${advice}`;
+        }
+        
+        function setResultPlaceholder(bmiText, categoryText, adviceText) {
+            bmiNumberSpan.innerHTML = bmiText;
+            bmiCategorySpan.innerHTML = categoryText;
+            adviceMsgDiv.innerHTML = `<span class="subtle-comment">🤍 hint</span> · ${adviceText}`;
+        }
+        
+        // Event listeners
+        calcButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            updateDisplay();
+        });
+        
+        [heightInput, weightInput].forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    updateDisplay();
+                }
+            });
+        });
+        
+        // Initial calculation
+        updateDisplay();
+    })();
+</script>
+</body>
+</html>
