@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>India Climate Viz | Past 15 + Future 30 Days Temperature Graph</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a3a 0%, #0f1a24 100%);
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        .main-card {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .input-panel {
+            background: linear-gradient(115deg, #1e5799, #2b6cb0);
+            padding: 2rem;
+            color: white;
+        }
+
+        .input-panel h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-panel h2::before {
+            content: "🌡️";
+            font-size: 2rem;
+        }
+
+        .subhead {
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            align-items: flex-end;
+        }
+
+        .input-field {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .input-field label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            opacity: 0.8;
+        }
+
+        .input-field input, .input-field select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: none;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            transition: 0.2s;
+            font-weight: 500;
+        }
+
+        .input-field input:focus, .input-field select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255,200,100,0.5);
+            transform: scale(1.01);
+        }
+
+        .btn-generate {
+            background: #f59e0b;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #1e293b;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-generate:hover {
+            background: #ffb82e;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+        .result-area {
+            padding: 2rem;
+            background: #fefcf8;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        canvas {
+            max-height: 480px;
+            width: 100%;
+        }
+
+        .stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .info-card {
+            background: #f1f5f9;
+            border-radius: 1.2rem;
+            padding: 0.8rem 1.2rem;
+            flex: 1;
+            min-width: 130px;
+            text-align: center;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .info-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .info-value {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #0f3b5c;
+        }
+
+        .legend-note {
+            background: #fef9e6;
+            border-radius: 1rem;
+            padding: 0.8rem 1rem;
+            font-size: 0.75rem;
+            color: #5a4a2e;
+            text-align: center;
+            border: 1px solid #ffe2b5;
+        }
+
+        .error-msg {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: 16px;
+            margin-top: 12px;
+            display: none;
+        }
+
+        @media (max-width: 700px) {
+            .input-panel, .result-area {
+                padding: 1.2rem;
+            }
+            .info-value {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="main-card">
+    <div class="input-panel">
+        <h2>India Climate Forecaster</h2>
+        <div class="subhead">🌍 Visualize daily average temperature: 15 days past + 30 days future</div>
+        <div class="form-group">
+            <div class="input-field">
+                <label>📅 Today's Date</label>
+                <input type="date" id="referenceDate" value="">
+            </div>
+            <div class="input-field">
+                <label>📍 Indian City</label>
+                <select id="citySelect">
+                    <option value="Chennai">Chennai (Coastal / Humid)</option>
+                    <option value="Delhi">Delhi (Continental / Extreme)</option>
+                    <option value="Mumbai">Mumbai (Coastal / Tropical)</option>
+                    <option value="Kolkata">Kolkata (Humid / Subtropical)</option>
+                    <option value="Bengaluru">Bengaluru (Mild / Plateau)</option>
+                    <option value="Jaipur">Jaipur (Arid / Hot)</option>
+                    <option value="Hyderabad">Hyderabad (Semi-arid)</option>
+                </select>
+            </div>
+            <button class="btn-generate" id="generateBtn">✨ Generate Graph</button>
+        </div>
+        <div id="errorMsg" class="error-msg"></div>
+    </div>
+    <div class="result-area">
+        <div class="chart-container">
+            <canvas id="tempGraph" width="1000" height="450" style="display: block; width:100%; height:auto;"></canvas>
+        </div>
+        <div class="stats-row" id="statsRow">
+            <div class="info-card"><div class="info-label">📊 Period</div><div class="info-value" id="periodLabel">--</div></div>
+            <div class="info-card"><div class="info-label">🔥 Max Temp (45d)</div><div class="info-value" id="maxTempStat">--°F</div></div>
+            <div class="info-card"><div class="info-label">❄️ Min Temp (45d)</div><div class="info-value" id="minTempStat">--°F</div></div>
+            <div class="info-card"><div class="info-label">🌡️ Future 30d Avg</div><div class="info-value" id="futureAvgStat">--°F</div></div>
+        </div>
+        <div class="legend-note" id="cityClimateNote">
+            📈 Select a city and date. Graph shows daily avg temperature for past 15 days + next 30 days based on realistic seasonal patterns.
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // DOM Elements
+        const dateInput = document.getElementById('referenceDate');
+        const citySelect = document.getElementById('citySelect');
+        const generateBtn = document.getElementById('generateBtn');
+        const errorDiv = document.getElementById('errorMsg');
+        const canvas = document.getElementById('tempGraph');
+        let currentChart = null;
+
+        // Set default date to today
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+
+        // ---------- Climate profiles for Indian cities (Celsius parameters) ----------
+        // Each city: baseAnnualMean °C, amplitude (seasonal variation), peakDayOffset (day of year for max temp)
+        // additional monsoon modulation, arid boost, coastal moderation etc.
+        const cityClimates = {
+            Chennai: {
+                name: "Chennai",
+                baseMean: 29.2,
+                amplitude: 4.8,
+                peakDay: 145,      // late May
+                monsoonCooling: 1.4,
+                coastalMod: 0.2,
+                desc: "Coastal, humid, moderate swings"
+            },
+            Delhi: {
+                name: "Delhi",
+                baseMean: 25.8,
+                amplitude: 11.5,
+                peakDay: 155,
+                monsoonCooling: 1.0,
+                aridBoost: 0.8,
+                desc: "Extreme summers, chilly winters"
+            },
+            Mumbai: {
+                name: "Mumbai",
+                baseMean: 27.8,
+                amplitude: 4.5,
+                peakDay: 140,
+                monsoonCooling: 1.6,
+                coastalMod: 0.5,
+                desc: "Tropical coastal, heavy monsoon dip"
+            },
+            Kolkata: {
+                name: "Kolkata",
+                baseMean: 26.9,
+                amplitude: 7.2,
+                peakDay: 142,
+                monsoonCooling: 1.5,
+                desc: "Humid, warm summers, mild winter"
+            },
+            Bengaluru: {
+                name: "Bengaluru",
+                baseMean: 23.5,
+                amplitude: 3.2,
+                peakDay: 130,
+                monsoonCooling: 0.6,
+                desc: "Pleasant plateau, mild year-round"
+            },
+            Jaipur: {
+                name: "Jaipur",
+                baseMean: 26.2,
+                amplitude: 10.2,
+                peakDay: 160,
+                monsoonCooling: 0.8,
+                aridBoost: 1.2,
+                desc: "Hot desert influence, large diurnal range"
+            },
+            Hyderabad: {
+                name: "Hyderabad",
+                baseMean: 27.0,
+                amplitude: 6.5,
+                peakDay: 148,
+                monsoonCooling: 1.1,
+                desc: "Semi-arid, hot summers, moderate winters"
+            }
+        };
+
+        // Helper: get day of year (0-364)
+        function getDayOfYear(date) {
+            const start = new Date(date.getFullYear(), 0, 0);
+            const diff = date - start;
+            const oneDay = 86400000;
+            return Math.floor(diff / oneDay);
+        }
+
+        // Generate temperature for a specific date and city (Celsius)
+        function getTemperatureForDate(date, cityKey) {
+            const profile = cityClimates[cityKey];
+            if (!profile) return 28;
+            const dayOfYear = getDayOfYear(date);
+            
+            // Seasonal sine wave centered around peakDay
+            const phase = (dayOfYear - profile.peakDay) * 2 * Math.PI / 365;
+            let seasonalVar = profile.amplitude * Math.cos(phase);
+            let tempC = profile.baseMean + seasonalVar;
+            
+            // Monsoon effect: June to September (days 150 to 265)
+            if (dayOfYear > 150 && dayOfYear < 265) {
+                const monsoonIntensity = 1.2 * Math.sin(((dayOfYear - 150) / 115) * Math.PI);
+                tempC -= (profile.monsoonCooling || 1.0) * monsoonIntensity;
+            }
+            
+            // Arid / extra boost for hot cities
+            if (profile.aridBoost && dayOfYear > 100 && dayOfYear < 200) {
+                tempC += 0.8;
+            }
+            
+            // Coastal moderation (slightly reduces peak, increases min)
+            if (profile.coastalMod && (dayOfYear > 340 || dayOfYear < 50)) {
+                tempC += 0.5;  // warmer winters
+            }
+            if (profile.coastalMod && dayOfYear > 130 && dayOfYear < 180) {
+                tempC -= 0.4;  // slightly cooler peak
+            }
+            
+            // Add small daily randomness (realistic ±0.6°C)
+            const noise = (Math.random() - 0.5) * 1.0;
+            tempC += noise;
+            
+            // Clamp to realistic bounds (avoid extreme outliers)
+            if (tempC > 42) tempC = 42;
+            if (tempC < 12) tempC = 12;
+            
+            return Math.round(tempC * 10) / 10;
+        }
+
+        // Generate temperature array for a range of dates
+        function generateTemperatures(dateArray, cityKey) {
+            return dateArray.map(date => getTemperatureForDate(date, cityKey));
+        }
+
+        // Convert Celsius array to Fahrenheit
+        function toFahrenheit(celsiusArr) {
+            return celsiusArr.map(c => Math.round(((c * 9/5) + 32) * 10) / 10);
+        }
+
+        // Format date as "DD MMM"
+        function formatShortDate(date) {
+            return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+        }
+
+        // Main function to build graph
+        function buildGraph() {
+            // Clear previous error
+            errorDiv.style.display = 'none';
+            errorDiv.innerHTML = '';
+            
+            // Get input date and city
+            const dateStr = dateInput.value;
+            if (!dateStr) {
+                showError("Please select a valid date.");
+                return;
+            }
+            
+            const selectedCity = citySelect.value;
+            if (!selectedCity) {
+                showError("Please select a city.");
+                return;
+            }
+            
+            const todayDate = new Date(dateStr);
+            if (isNaN(todayDate.getTime())) {
+                showError("Invalid date. Please choose a proper date.");
+                return;
+            }
+            
+            // Build date range: past 15 days + today + future 30 days = total 46 days
+            const dates = [];
+            // Past 15 days (from todayDate - 15 days to todayDate - 1)
+            for (let i = 15; i >= 1; i--) {
+                const pastDate = new Date(todayDate);
+                pastDate.setDate(todayDate.getDate() - i);
+                dates.push(pastDate);
+            }
+            // Today
+            dates.push(new Date(todayDate));
+            // Future 30 days
+            for (let i = 1; i <= 30; i++) {
+                const futureDate = new Date(todayDate);
+                futureDate.setDate(todayDate.getDate() + i);
+                dates.push(futureDate);
+            }
+            
+            // Generate Celsius temperatures
+            const celsiusValues = generateTemperatures(dates, selectedCity);
+            const fahrenheitValues = toFahrenheit(celsiusValues);
+            
+            // Prepare labels for x-axis: show a smart subset to avoid clutter (every 3-4 days)
+            const labels = dates.map(d => formatShortDate(d));
+            
+            // Add separator line at "today" index (15th index because 15 past days)
+            const todayIndex = 15;  // after 15 past days comes today (0-index: index 15)
+            
+            // Statistics for UI
+            const maxTempF = Math.max(...fahrenheitValues);
+            const minTempF = Math.min(...fahrenheitValues);
+            const futureOnly = fahrenheitValues.slice(todayIndex + 1); // next 30 days after today
+            const futureAvg = futureOnly.reduce((a,b) => a+b, 0) / futureOnly.length;
+            const startDateLabel = formatShortDate(dates[0]);
+            const endDateLabel = formatShortDate(dates[dates.length-1]);
+            
+            document.getElementById('periodLabel').innerHTML = `${startDateLabel} – ${endDateLabel}`;
+            document.getElementById('maxTempStat').innerHTML = `${maxTempF.toFixed(1)}°F`;
+            document.getElementById('minTempStat').innerHTML = `${minTempF.toFixed(1)}°F`;
+            document.getElementById('futureAvgStat').innerHTML = `${futureAvg.toFixed(1)}°F`;
+            
+            // City climate note update
+            const climateInfo = cityClimates[selectedCity];
+            const climateDesc = climateInfo ? climateInfo.desc : "Diverse climate zone";
+            document.getElementById('cityClimateNote').innerHTML = `📍 ${selectedCity} · ${climateDesc} · Showing daily avg temperature for past 15 days ➜ today ➜ next 30 days. Data based on seasonal & monsoon modeling.`;
+            
+            // Destroy existing chart if any
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Create gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(245, 158, 11, 0.35)');
+            gradient.addColorStop(1, 'rgba(245, 158, 11, 0.02)');
+            
+            // Build dataset with segment colors: past (grayish-blue), future (orange/amber)
+            // Use segment styling: past up to todayIndex, future after.
+            // Better: create two datasets? no, use one dataset with segment custom colors.
+            // But for clarity, we use single line with point background colors.
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Daily avg temperature (${selectedCity}) · °F`,
+                        data: fahrenheitValues,
+                        borderColor: '#e67e22',
+                        backgroundColor: gradient,
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: (context) => {
+                            const index = context.dataIndex;
+                            if (index <= todayIndex) return '#4a6fa5';   // past days in blueish
+                            return '#f59e0b';   // future in orange
+                        },
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 1.5,
+                        tension: 0.2,
+                        fill: true,
+                        segment: {
+                            borderColor: (ctx) => {
+                                const p0 = ctx.p0DataIndex;
+                                const p1 = ctx.p1DataIndex;
+                                if (p0 <= todayIndex && p1 <= todayIndex) return '#5a7da8';
+                                if (p0 >= todayIndex && p1 >= todayIndex) return '#e67e22';
+                                return '#cc8844';  // transition segment
+                            }
+                        }
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            titleColor: '#ffedd5',
+                            bodyColor: '#fed7aa',
+                            callbacks: {
+                                label: (context) => {
+                                    let tempF = context.raw;
+                                    let dateLabel = labels[context.dataIndex];
+                                    let isFuture = context.dataIndex > todayIndex;
+                                    let marker = isFuture ? "🔮 Future" : (context.dataIndex === todayIndex ? "📍 TODAY" : "📆 Past");
+                                    return `${marker}: ${tempF}°F  (${dateLabel})`;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: { font: { size: 11 }, color: '#2c3e66', usePointStyle: true }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Date (Past 15d → Today → Future 30d)', color: '#8b5a2b', font: { weight: 'bold' } },
+                            ticks: { maxRotation: 45, autoSkip: true, maxTicksLimit: 12 }
+                        },
+                        y: {
+                            title: { display: true, text: 'Temperature (°F)', color: '#8b5a2b', font: { weight: 'bold' } },
+                            grid: { color: '#f0e5d8' },
+                            ticks: { callback: (val) => val + '°F' }
+                        }
+                    },
+                    elements: {
+                        line: { borderJoin: 'round' }
+                    },
+                    layout: {
+                        padding: { top: 10, bottom: 10 }
+                    }
+                }
+            });
+            
+            // Add a subtle annotation line for "today" using plugin? Not necessary, but works.
+        }
+        
+        function showError(msg) {
+            errorDiv.style.display = 'block';
+            errorDiv.innerHTML = msg;
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Event listener
+        generateBtn.addEventListener('click', () => {
+            buildGraph();
+        });
+        
+        // Load initial graph on page load
+        window.addEventListener('load', () => {
+            buildGraph();
+        });
+        
+        // optional resize handling
+        window.addEventListener('resize', () => {
+            if (currentChart) currentChart.resize();
+        });
+    })();
+</script>
+</body>
+</html>

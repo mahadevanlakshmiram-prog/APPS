@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dictionary App - Lakshmiram Mahadevan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 28px;
+        }
+
+        .creator {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        input {
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5a67d8;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .result.active {
+            display: block;
+        }
+
+        .word-header {
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .word {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .phonetic {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .meaning-section {
+            margin-bottom: 25px;
+        }
+
+        .part-of-speech {
+            font-size: 20px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .definition-list {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .definition-list li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .definition-list li strong {
+            color: #333;
+        }
+
+        .example {
+            color: #666;
+            font-style: italic;
+            margin-top: 5px;
+            padding-left: 20px;
+        }
+
+        .synonyms-section {
+            background: #f7f7f7;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .synonyms-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .synonyms-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .synonym-tag {
+            background: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .synonym-tag:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+            font-size: 12px;
+            color: #999;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 20px;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .word {
+                font-size: 24px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>📚 Dictionary App</h1>
+                <div class="creator">Created by Lakshmiram Mahadevan</div>
+            </div>
+            <p class="subtitle">Free Dictionary API • No restrictions • No API key required</p>
+            
+            <div class="search-box">
+                <input type="text" id="wordInput" placeholder="Enter a word (e.g., 'eloquent', 'serendipity')" onkeypress="handleKeyPress(event)">
+                <button onclick="searchWord()">Search</button>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px;">Fetching definitions...</p>
+            </div>
+            
+            <div class="result" id="result">
+                <div class="word-header">
+                    <div class="word" id="word"></div>
+                    <div class="phonetic" id="phonetic"></div>
+                </div>
+                <div id="meanings"></div>
+                <div class="synonyms-section" id="synonymsSection" style="display: none;">
+                    <div class="synonyms-title">🔗 Synonyms (click to search)</div>
+                    <div class="synonyms-list" id="synonymsList"></div>
+                </div>
+            </div>
+            
+            <div class="error" id="error">
+                <strong>⚠️ Word not found</strong><br>
+                Please check the spelling or try another word.
+            </div>
+            
+            <div class="footer">
+                Powered by Free Dictionary API | Built with ❤️ by Lakshmiram Mahadevan
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://api.dictionaryapi.dev/api/v2/entries/en/';
+        
+        async function searchWord() {
+            const wordInput = document.getElementById('wordInput');
+            const word = wordInput.value.trim().toLowerCase();
+            
+            if (!word) {
+                showError('Please enter a word');
+                return;
+            }
+            
+            showLoading();
+            hideResult();
+            hideError();
+            
+            try {
+                const response = await fetch(`${API_URL}${word}`);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('Word not found');
+                    }
+                    throw new Error('API error');
+                }
+                
+                const data = await response.json();
+                displayResult(data, word);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError(`"${word}" not found in dictionary. Please check spelling.`);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        function displayResult(data, searchTerm) {
+            const resultDiv = document.getElementById('result');
+            const wordElement = document.getElementById('word');
+            const phoneticElement = document.getElementById('phonetic');
+            const meaningsDiv = document.getElementById('meanings');
+            const synonymsSection = document.getElementById('synonymsSection');
+            const synonymsList = document.getElementById('synonymsList');
+            
+            const wordData = data[0];
+            wordElement.textContent = wordData.word;
+            phoneticElement.textContent = wordData.phonetic || '';
+            
+            meaningsDiv.innerHTML = '';
+            const allSynonyms = new Set();
+            
+            wordData.meanings.forEach(meaning => {
+                const meaningSection = document.createElement('div');
+                meaningSection.className = 'meaning-section';
+                
+                const partOfSpeech = document.createElement('div');
+                partOfSpeech.className = 'part-of-speech';
+                partOfSpeech.textContent = meaning.partOfSpeech;
+                meaningSection.appendChild(partOfSpeech);
+                
+                const definitionList = document.createElement('ul');
+                definitionList.className = 'definition-list';
+                
+                meaning.definitions.slice(0, 3).forEach((def, idx) => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `<strong>${idx + 1}.</strong> ${def.definition}`;
+                    definitionList.appendChild(listItem);
+                    
+                    if (def.example) {
+                        const example = document.createElement('div');
+                        example.className = 'example';
+                        example.textContent = `📖 Example: "${def.example}"`;
+                        definitionList.appendChild(example);
+                    }
+                    
+                    if (def.synonyms && def.synonyms.length > 0) {
+                        def.synonyms.forEach(syn => allSynonyms.add(syn));
+                    }
+                });
+                
+                meaningSection.appendChild(definitionList);
+                meaningsDiv.appendChild(meaningSection);
+                
+                if (meaning.synonyms && meaning.synonyms.length > 0) {
+                    meaning.synonyms.forEach(syn => allSynonyms.add(syn));
+                }
+            });
+            
+            if (allSynonyms.size > 0) {
+                synonymsSection.style.display = 'block';
+                synonymsList.innerHTML = '';
+                Array.from(allSynonyms).slice(0, 15).forEach(synonym => {
+                    const tag = document.createElement('div');
+                    tag.className = 'synonym-tag';
+                    tag.textContent = synonym;
+                    tag.onclick = () => {
+                        document.getElementById('wordInput').value = synonym;
+                        searchWord();
+                    };
+                    synonymsList.appendChild(tag);
+                });
+            } else {
+                synonymsSection.style.display = 'none';
+            }
+            
+            resultDiv.classList.add('active');
+        }
+        
+        function showLoading() {
+            document.getElementById('loading').classList.add('active');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('active');
+        }
+        
+        function showResult() {
+            document.getElementById('result').classList.add('active');
+        }
+        
+        function hideResult() {
+            document.getElementById('result').classList.remove('active');
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.innerHTML = `<strong>⚠️ Error</strong><br>${message}`;
+            errorDiv.classList.add('active');
+        }
+        
+        function hideError() {
+            document.getElementById('error').classList.remove('active');
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                searchWord();
+            }
+        }
+        
+        // Example words to try
+        console.log('Dictionary App by Lakshmiram Mahadevan - Try these words: serendipity, ephemeral, quintessential, melancholy');
+    </script>
+</body>
+</html>

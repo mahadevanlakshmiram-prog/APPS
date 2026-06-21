@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>India Distance Mapper | LAKSHMIRAM MAHADEVAN</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #e9f0f5 0%, #d9e2ec 100%);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .app-card {
+            max-width: 850px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(0px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .app-header {
+            background: #1e3c4c;
+            background-image: linear-gradient(135deg, #1e3c4c 0%, #2a5f6e 100%);
+            padding: 1.4rem 2rem;
+            color: white;
+        }
+
+        .creator-name-top {
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            opacity: 0.85;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            border-left: 3px solid #ffcd7e;
+            padding-left: 10px;
+        }
+
+        .app-header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .app-header h1:before {
+            content: "🇮🇳";
+            font-size: 1.9rem;
+        }
+
+        .app-header p {
+            margin: 0.5rem 0 0;
+            opacity: 0.85;
+            font-size: 0.9rem;
+        }
+
+        .content {
+            padding: 1.8rem 2rem 2rem;
+        }
+
+        .town-input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-box {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .input-box label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #1e4c5c;
+            margin-bottom: 0.4rem;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            font-size: 1rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 1.5rem;
+            background: white;
+            transition: 0.2s;
+            outline: none;
+        }
+
+        .input-box input:focus {
+            border-color: #2a7f6e;
+            box-shadow: 0 0 0 3px rgba(42, 127, 110, 0.2);
+        }
+
+        .swap-btn {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 0.25rem;
+        }
+
+        .swap-btn button {
+            background: #f1f5f9;
+            border: none;
+            border-radius: 3rem;
+            width: 48px;
+            height: 48px;
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #1e4c5c;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .swap-btn button:hover {
+            background: #e2e8f0;
+            transform: scale(0.96);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0 1.5rem;
+        }
+
+        .btn-primary {
+            background: #2a7f6e;
+            color: white;
+            padding: 0.85rem 1.6rem;
+            border: none;
+            border-radius: 3rem;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary:hover {
+            background: #1e5f52;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f4f2ed;
+            border: 1px solid #cbd5e1;
+            color: #2c3e44;
+            padding: 0.85rem 1rem;
+            border-radius: 3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 0.4;
+        }
+
+        .result-panel {
+            background: #f8fafc;
+            border-radius: 1.8rem;
+            padding: 1.2rem 1.6rem;
+            margin: 1rem 0;
+            border-left: 6px solid #2a7f6e;
+            box-shadow: 0 6px 12px -8px rgba(0, 0, 0, 0.1);
+        }
+
+        .distance-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f3b42;
+            line-height: 1.2;
+        }
+
+        .distance-unit {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-left: 6px;
+        }
+
+        .route-note {
+            font-size: 0.85rem;
+            color: #3a6b73;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .town-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px dashed #cbd5e1;
+            font-size: 0.85rem;
+        }
+
+        .stat-card {
+            background: #eef2f7;
+            border-radius: 1rem;
+            padding: 6px 12px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .stat-label {
+            font-weight: 700;
+            color: #1e4c5c;
+            margin-right: 6px;
+        }
+
+        .suggestions {
+            margin-top: 28px;
+        }
+
+        .suggestions h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 10px 0;
+            color: #1e4c5c;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .town-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chip {
+            background: #eef2f4;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.1s;
+            border: 1px solid transparent;
+        }
+
+        .chip:hover {
+            background: #dee6ea;
+            border-color: #2a7f6e;
+            transform: scale(0.97);
+        }
+
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 1rem 1rem 1.2rem;
+            border-top: 1px solid #e2edf2;
+            color: #5b7e86;
+        }
+
+        @media (max-width: 650px) {
+            .content {
+                padding: 1.5rem;
+            }
+            .distance-value {
+                font-size: 1.6rem;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .town-stats {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-card">
+    <div class="app-header">
+        <div class="creator-name-top">LAKSHMIRAM MAHADEVAN</div>
+        <h1>India Distance Estimator</h1>
+        <p>Approximate road distance between two towns • altitude (m) & population (lakhs)</p>
+    </div>
+    <div class="content">
+        <div class="town-input-group">
+            <div class="input-box">
+                <label>📍 Town A (From)</label>
+                <input type="text" id="fromTown" placeholder="e.g., Mumbai, Delhi, Bengaluru" autocomplete="off" value="Mumbai">
+            </div>
+            <div class="swap-btn">
+                <button id="swapButton" title="Swap towns">⇄</button>
+            </div>
+            <div class="input-box">
+                <label>📍 Town B (To)</label>
+                <input type="text" id="toTown" placeholder="e.g., Pune, Chennai, Jaipur" autocomplete="off" value="Pune">
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-primary" id="estimateBtn">🚗 Estimate Distance</button>
+            <button class="btn-secondary" id="clearBtn">⟳ Clear</button>
+        </div>
+
+        <div id="resultArea" class="result-panel">
+            <div class="distance-value" id="distanceDisplay">— km</div>
+            <div class="route-note" id="routeNote">
+                <span>🛣️</span> Estimated road distance (India reference model)
+            </div>
+            <div id="extraInfo" style="font-size: 0.85rem; margin-top: 8px; color: #2c6270;"></div>
+            <div id="townStats" class="town-stats">
+                <!-- dynamic stats for both towns appear here -->
+            </div>
+        </div>
+
+        <div class="suggestions">
+            <h3>✨ Popular town pairs (India)</h3>
+            <div class="town-chips" id="suggestionChips">
+                <!-- chips injected dynamically -->
+            </div>
+        </div>
+    </div>
+    <footer>
+        🚧 Altitude & population data for reference (approx). Distance uses haversine + India road correction.
+        | Designed by LAKSHMIRAM MAHADEVAN
+    </footer>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    // India Towns Database with lat/lon, region, altitude (metres), population (lakhs)
+    // Population in lakhs (1 lakh = 100,000). Values based on census estimates & official data.
+    // Altitude in metres above sea level.
+    // --------------------------------------------------------------
+    const townsDatabase = {
+        // Metros & Tier-1 with altitude & population (lakhs)
+        "mumbai": { lat: 19.0760, lon: 72.8777, region: "west", altitude: 14, population: 204.1 },
+        "delhi": { lat: 28.6139, lon: 77.2090, region: "north", altitude: 216, population: 167.8 },
+        "bengaluru": { lat: 12.9716, lon: 77.5946, region: "south", altitude: 920, population: 84.4 },
+        "bangalore": { lat: 12.9716, lon: 77.5946, region: "south", altitude: 920, population: 84.4 },
+        "chennai": { lat: 13.0827, lon: 80.2707, region: "south", altitude: 6, population: 87.0 },
+        "kolkata": { lat: 22.5726, lon: 88.3639, region: "east", altitude: 9, population: 141.1 },
+        "hyderabad": { lat: 17.3850, lon: 78.4867, region: "south", altitude: 505, population: 77.4 },
+        "ahmedabad": { lat: 23.0225, lon: 72.5714, region: "west", altitude: 53, population: 74.4 },
+        "pune": { lat: 18.5204, lon: 73.8567, region: "west", altitude: 560, population: 51.2 },
+        "jaipur": { lat: 26.9124, lon: 75.7873, region: "north", altitude: 431, population: 30.7 },
+        "lucknow": { lat: 26.8467, lon: 80.9462, region: "central", altitude: 123, population: 28.2 },
+        "kanpur": { lat: 26.4499, lon: 80.3319, region: "central", altitude: 126, population: 27.6 },
+        "nagpur": { lat: 21.1458, lon: 79.0882, region: "central", altitude: 310, population: 24.0 },
+        "indore": { lat: 22.7196, lon: 75.8577, region: "central", altitude: 553, population: 19.6 },
+        "bhopal": { lat: 23.2599, lon: 77.4126, region: "central", altitude: 527, population: 18.8 },
+        "visakhapatnam": { lat: 17.6868, lon: 83.2185, region: "south", altitude: 45, population: 17.6 },
+        "surat": { lat: 21.1702, lon: 72.8311, region: "west", altitude: 19, population: 58.5 },
+        "vadodara": { lat: 22.3072, lon: 73.1812, region: "west", altitude: 39, population: 20.4 },
+        "patna": { lat: 25.5941, lon: 85.1376, region: "east", altitude: 53, population: 16.8 },
+        "agra": { lat: 27.1767, lon: 78.0081, region: "north", altitude: 171, population: 15.8 },
+        "nashik": { lat: 19.9975, lon: 73.7898, region: "west", altitude: 570, population: 15.6 },
+        "ranchi": { lat: 23.3441, lon: 85.3096, region: "east", altitude: 651, population: 11.2 },
+        "coimbatore": { lat: 11.0168, lon: 76.9558, region: "south", altitude: 411, population: 16.2 },
+        "kochi": { lat: 9.9312, lon: 76.2673, region: "south", altitude: 4, population: 15.2 },
+        "trivandrum": { lat: 8.5241, lon: 76.9366, region: "south", altitude: 10, population: 12.1 },
+        "thiruvananthapuram": { lat: 8.5241, lon: 76.9366, region: "south", altitude: 10, population: 12.1 },
+        "madurai": { lat: 9.9252, lon: 78.1198, region: "south", altitude: 134, population: 10.1 },
+        "mangalore": { lat: 12.9141, lon: 74.8560, region: "south", altitude: 22, population: 4.2 },
+        "mysore": { lat: 12.2958, lon: 76.6394, region: "south", altitude: 763, population: 8.0 },
+        "chandigarh": { lat: 30.7333, lon: 76.7794, region: "north", altitude: 321, population: 10.2 },
+        "ludhiana": { lat: 30.9010, lon: 75.8573, region: "north", altitude: 247, population: 15.7 },
+        "amritsar": { lat: 31.6340, lon: 74.8723, region: "north", altitude: 228, population: 11.7 },
+        "jodhpur": { lat: 26.2389, lon: 73.0243, region: "west", altitude: 231, population: 10.2 },
+        "udaipur": { lat: 24.5854, lon: 73.7125, region: "west", altitude: 598, population: 4.8 },
+        "gwalior": { lat: 26.2183, lon: 78.1828, region: "central", altitude: 197, population: 10.6 },
+        "jabalpur": { lat: 23.1690, lon: 79.9344, region: "central", altitude: 411, population: 11.2 },
+        "allahabad": { lat: 25.4358, lon: 81.8463, region: "central", altitude: 98, population: 11.2 },
+        "prayagraj": { lat: 25.4358, lon: 81.8463, region: "central", altitude: 98, population: 11.2 },
+        "varanasi": { lat: 25.3176, lon: 82.9739, region: "east", altitude: 80, population: 12.2 },
+        "bhubaneswar": { lat: 20.2961, lon: 85.8245, region: "east", altitude: 45, population: 8.4 },
+        "guwahati": { lat: 26.1445, lon: 91.7362, region: "northeast", altitude: 55, population: 9.6 },
+        "shillong": { lat: 25.5788, lon: 91.8933, region: "northeast", altitude: 1525, population: 1.9 },
+        "dehradun": { lat: 30.3165, lon: 78.0322, region: "north", altitude: 450, population: 5.6 },
+        "noida": { lat: 28.5355, lon: 77.3910, region: "north", altitude: 200, population: 5.8 },
+        "gurugram": { lat: 28.4595, lon: 77.0266, region: "north", altitude: 217, population: 15.4 },
+        "faridabad": { lat: 28.4089, lon: 77.3178, region: "north", altitude: 209, population: 14.0 },
+        "meerut": { lat: 28.9845, lon: 77.7064, region: "north", altitude: 219, population: 13.0 },
+        "raipur": { lat: 21.2514, lon: 81.6296, region: "central", altitude: 298, population: 10.1 },
+        "bilaspur": { lat: 22.0796, lon: 82.1409, region: "central", altitude: 271, population: 3.6 },
+        "durgapur": { lat: 23.4866, lon: 87.3145, region: "east", altitude: 94, population: 5.6 },
+        "siliguri": { lat: 26.7270, lon: 88.3956, region: "east", altitude: 120, population: 5.8 },
+        "panaji": { lat: 15.4909, lon: 73.8278, region: "west", altitude: 7, population: 1.8 },
+        "aurangabad": { lat: 19.8762, lon: 75.3433, region: "west", altitude: 568, population: 11.9 },
+        "shimla": { lat: 31.1048, lon: 77.1734, region: "north", altitude: 2200, population: 1.8 },
+        "srinagar": { lat: 34.0837, lon: 74.7973, region: "north", altitude: 1585, population: 11.8 },
+        "jammu": { lat: 32.7266, lon: 74.8570, region: "north", altitude: 327, population: 5.0 },
+        "gangtok": { lat: 27.3389, lon: 88.6141, region: "northeast", altitude: 1650, population: 0.9 },
+        "kohima": { lat: 25.6747, lon: 94.1086, region: "northeast", altitude: 1444, population: 0.9 },
+        "imphal": { lat: 24.8170, lon: 93.9368, region: "northeast", altitude: 786, population: 2.8 },
+        "agartala": { lat: 23.8315, lon: 91.2868, region: "northeast", altitude: 12, population: 4.0 },
+        "thane": { lat: 19.2183, lon: 72.9781, region: "west", altitude: 9, population: 18.9 },
+        "solapur": { lat: 17.6599, lon: 75.9064, region: "west", altitude: 469, population: 9.5 },
+        "belagavi": { lat: 15.8497, lon: 74.4977, region: "south", altitude: 747, population: 4.9 },
+        "guntur": { lat: 16.3067, lon: 80.4365, region: "south", altitude: 33, population: 6.7 },
+        "nellore": { lat: 14.4426, lon: 79.9865, region: "south", altitude: 18, population: 6.0 },
+        "tirupati": { lat: 13.6288, lon: 79.4192, region: "south", altitude: 152, population: 2.8 },
+        "kurnool": { lat: 15.8281, lon: 78.0373, region: "south", altitude: 274, population: 4.8 },
+        "rajkot": { lat: 22.3039, lon: 70.8022, region: "west", altitude: 128, population: 13.2 },
+        "jamnagar": { lat: 22.4707, lon: 70.0577, region: "west", altitude: 20, population: 6.0 },
+        "bhavnagar": { lat: 21.7645, lon: 72.1519, region: "west", altitude: 24, population: 6.0 },
+        "kota": { lat: 25.2138, lon: 75.8648, region: "central", altitude: 271, population: 10.0 },
+        "ajmer": { lat: 26.4499, lon: 74.6399, region: "west", altitude: 486, population: 5.4 },
+        "bikaner": { lat: 28.0229, lon: 73.3119, region: "west", altitude: 243, population: 6.4 },
+        "mathura": { lat: 27.4924, lon: 77.6737, region: "north", altitude: 174, population: 4.3 },
+        "haridwar": { lat: 29.9457, lon: 78.1642, region: "north", altitude: 314, population: 2.3 },
+        "rishikesh": { lat: 30.0869, lon: 78.2676, region: "north", altitude: 372, population: 0.8 }
+    };
+    
+    // Normalize input: trim, lower case, handle common variations
+    function normalizeTownName(raw) {
+        if (!raw) return "";
+        let cleaned = raw.trim().toLowerCase();
+        cleaned = cleaned.replace(/[^a-z0-9\s]/g, '').trim();
+        const aliases = {
+            "bangalore": "bengaluru",
+            "bombay": "mumbai",
+            "calcutta": "kolkata",
+            "madras": "chennai",
+            "trivandrum": "thiruvananthapuram",
+            "prayag": "prayagraj",
+            "kozhikode": "kochi",
+            "gurgaon": "gurugram"
+        };
+        if (aliases[cleaned]) return aliases[cleaned];
+        return cleaned;
+    }
+    
+    function getTownInfo(townName) {
+        const key = normalizeTownName(townName);
+        if (townsDatabase[key]) return townsDatabase[key];
+        const exactMatch = Object.keys(townsDatabase).find(t => t === key);
+        if (exactMatch) return townsDatabase[exactMatch];
+        return null;
+    }
+    
+    // Haversine formula (great-circle distance) in km
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+    
+    function getRoadCorrectionFactor(regionA, regionB) {
+        const hillyRegions = ["northeast", "north"];
+        const isHillyA = hillyRegions.includes(regionA);
+        const isHillyB = hillyRegions.includes(regionB);
+        if (isHillyA || isHillyB) return 1.42;
+        if ((regionA === "west" && regionB === "east") || (regionA === "east" && regionB === "west")) return 1.32;
+        if ((regionA === "south" && regionB === "north") || (regionA === "north" && regionB === "south")) return 1.35;
+        return 1.22;
+    }
+    
+    function estimateRoadDistance(townA, townB) {
+        const infoA = getTownInfo(townA);
+        const infoB = getTownInfo(townB);
+        if (!infoA || !infoB) return null;
+        const straightDist = haversineDistance(infoA.lat, infoA.lon, infoB.lat, infoB.lon);
+        const correction = getRoadCorrectionFactor(infoA.region, infoB.region);
+        let roadDist = straightDist * correction;
+        if (straightDist > 400) roadDist *= 1.02;
+        return Math.round(roadDist);
+    }
+    
+    // UI references
+    const fromInput = document.getElementById('fromTown');
+    const toInput = document.getElementById('toTown');
+    const distanceDisplaySpan = document.getElementById('distanceDisplay');
+    const extraInfoDiv = document.getElementById('extraInfo');
+    const townStatsDiv = document.getElementById('townStats');
+    const estimateBtn = document.getElementById('estimateBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const swapBtn = document.getElementById('swapButton');
+    const suggestionContainer = document.getElementById('suggestionChips');
+    
+    const suggestionPairs = [
+        { from: "Mumbai", to: "Pune" },
+        { from: "Delhi", to: "Agra" },
+        { from: "Bengaluru", to: "Chennai" },
+        { from: "Kolkata", to: "Bhubaneswar" },
+        { from: "Jaipur", to: "Delhi" },
+        { from: "Hyderabad", to: "Bengaluru" },
+        { from: "Ahmedabad", to: "Mumbai" },
+        { from: "Lucknow", to: "Kanpur" },
+        { from: "Nagpur", to: "Indore" },
+        { from: "Coimbatore", to: "Kochi" }
+    ];
+    
+    function formatPopulation(popLakhs) {
+        if (popLakhs >= 100) return `${(popLakhs/100).toFixed(1)} Cr`; // Crore for huge cities
+        return `${popLakhs.toFixed(1)} lakhs`;
+    }
+    
+    function displayTownStats() {
+        const townA = fromInput.value.trim();
+        const townB = toInput.value.trim();
+        if (!townA && !townB) {
+            townStatsDiv.innerHTML = `<div class="stat-card">📍 Enter towns to see altitude & population</div>`;
+            return;
+        }
+        const infoA = townA ? getTownInfo(townA) : null;
+        const infoB = townB ? getTownInfo(townB) : null;
+        
+        let statsHtml = '';
+        if (infoA) {
+            statsHtml += `<div class="stat-card">
+                            <strong>🏙️ ${townA}</strong><br>
+                            <span class="stat-label">Altitude:</span> ${infoA.altitude} m<br>
+                            <span class="stat-label">Population:</span> ${formatPopulation(infoA.population)}
+                         </div>`;
+        } else if (townA) {
+            statsHtml += `<div class="stat-card">⚠️ "${townA}" not found</div>`;
+        }
+        
+        if (infoB) {
+            statsHtml += `<div class="stat-card">
+                            <strong>🏙️ ${townB}</strong><br>
+                            <span class="stat-label">Altitude:</span> ${infoB.altitude} m<br>
+                            <span class="stat-label">Population:</span> ${formatPopulation(infoB.population)}
+                         </div>`;
+        } else if (townB && !infoB) {
+            statsHtml += `<div class="stat-card">⚠️ "${townB}" not found</div>`;
+        }
+        
+        if (!infoA && !infoB && !townA && !townB) {
+            statsHtml = `<div class="stat-card">✨ Town altitude & population will appear here</div>`;
+        }
+        townStatsDiv.innerHTML = statsHtml;
+    }
+    
+    function updateDistanceUI() {
+        const townA = fromInput.value.trim();
+        const townB = toInput.value.trim();
+        displayTownStats();
+        
+        if (townA === "" || townB === "") {
+            distanceDisplaySpan.innerHTML = "❓ km";
+            extraInfoDiv.innerHTML = "⚠️ Please enter both town names.";
+            return;
+        }
+        
+        const infoA = getTownInfo(townA);
+        const infoB = getTownInfo(townB);
+        if (!infoA) {
+            distanceDisplaySpan.innerHTML = "❓ km";
+            extraInfoDiv.innerHTML = `🚫 Town "${townA}" not found. Try a different name (e.g., Mumbai, Bengaluru).`;
+            return;
+        }
+        if (!infoB) {
+            distanceDisplaySpan.innerHTML = "❓ km";
+            extraInfoDiv.innerHTML = `🚫 Town "${townB}" not found. Try a different name.`;
+            return;
+        }
+        
+        const estimated = estimateRoadDistance(townA, townB);
+        if (estimated !== null) {
+            distanceDisplaySpan.innerHTML = `${estimated.toLocaleString()} <span class="distance-unit">km</span>`;
+            const straight = haversineDistance(infoA.lat, infoA.lon, infoB.lat, infoB.lon);
+            extraInfoDiv.innerHTML = `📐 Straight-line: ${Math.round(straight)} km • 🛣️ Road factor: ~${((estimated/straight).toFixed(2))}x (India adjusted)`;
+        } else {
+            distanceDisplaySpan.innerHTML = "⚠️ error";
+            extraInfoDiv.innerHTML = "Could not compute distance.";
+        }
+    }
+    
+    function estimateHandler() {
+        updateDistanceUI();
+    }
+    
+    function clearHandler() {
+        fromInput.value = "";
+        toInput.value = "";
+        distanceDisplaySpan.innerHTML = "— km";
+        extraInfoDiv.innerHTML = "Enter two Indian towns to estimate distance.";
+        townStatsDiv.innerHTML = `<div class="stat-card">📍 Altitude & population will show here</div>`;
+    }
+    
+    function swapTowns() {
+        const temp = fromInput.value;
+        fromInput.value = toInput.value;
+        toInput.value = temp;
+        updateDistanceUI();
+    }
+    
+    function loadSuggestions() {
+        suggestionContainer.innerHTML = "";
+        const chipsList = [...suggestionPairs];
+        const extraChips = [
+            { from: "Chandigarh", to: "Shimla" },
+            { from: "Mysore", to: "Bangalore" },
+            { from: "Varanasi", to: "Prayagraj" }
+        ];
+        const allChips = [...chipsList, ...extraChips];
+        allChips.forEach(pair => {
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.innerHTML = `${pair.from} ➔ ${pair.to}`;
+            chip.addEventListener('click', () => {
+                fromInput.value = pair.from;
+                toInput.value = pair.to;
+                updateDistanceUI();
+            });
+            suggestionContainer.appendChild(chip);
+        });
+        const randomSample = document.createElement('div');
+        randomSample.className = 'chip';
+        randomSample.innerHTML = "🗺️ Mumbai ⇄ Delhi";
+        randomSample.addEventListener('click', () => {
+            fromInput.value = "Mumbai";
+            toInput.value = "Delhi";
+            updateDistanceUI();
+        });
+        suggestionContainer.appendChild(randomSample);
+    }
+    
+    function init() {
+        loadSuggestions();
+        updateDistanceUI(); // initial mumbai-pune with stats
+    }
+    
+    estimateBtn.addEventListener('click', estimateHandler);
+    clearBtn.addEventListener('click', clearHandler);
+    swapBtn.addEventListener('click', swapTowns);
+    fromInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') estimateHandler(); });
+    toInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') estimateHandler(); });
+    
+    init();
+</script>
+</body>
+</html>

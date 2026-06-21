@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Day Finder | LakshmiRam Mahadevan</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, 'Segoe UI', 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(145deg, #e9f0fc 0%, #d9e3f0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    /* main card */
+    .card {
+      max-width: 680px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(0px);
+      border-radius: 3rem;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    /* header gradient with personalized name */
+    .hero {
+      background: linear-gradient(135deg, #1e2b5c, #0f1a3a);
+      padding: 1.6rem 2rem 1.2rem;
+      text-align: center;
+      color: white;
+      position: relative;
+    }
+
+    .hero h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 0.25rem;
+    }
+
+    .hero h1 span {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.2rem 0.8rem;
+      border-radius: 60px;
+      font-size: 1.3rem;
+      font-weight: 500;
+    }
+
+    .personal-tag {
+      font-size: 1.2rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      background: rgba(255, 215, 150, 0.25);
+      display: inline-block;
+      padding: 0.2rem 1.2rem;
+      border-radius: 40px;
+      backdrop-filter: blur(2px);
+      margin-top: 6px;
+      font-family: 'Segoe UI', 'Poppins', monospace;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .hero p {
+      margin-top: 0.65rem;
+      opacity: 0.85;
+      font-size: 0.95rem;
+      font-weight: 400;
+    }
+
+    /* main content */
+    .content {
+      padding: 2rem 2rem 2.2rem;
+    }
+
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      align-items: flex-end;
+    }
+
+    .field {
+      flex: 1;
+      min-width: 110px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #2c3e66;
+      margin-bottom: 0.5rem;
+    }
+
+    .field input, .field select {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      font-size: 1rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 1.5rem;
+      background: white;
+      transition: all 0.2s;
+      font-weight: 500;
+      outline: none;
+      color: #0f172a;
+    }
+
+    .field input:focus, .field select:focus {
+      border-color: #3b5b9b;
+      box-shadow: 0 0 0 3px rgba(59, 91, 155, 0.2);
+    }
+
+    button {
+      background: #1e2b5c;
+      color: white;
+      border: none;
+      padding: 0.85rem 1.6rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    }
+
+    button:hover {
+      background: #0f1a3a;
+      transform: scale(0.97);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    button:active {
+      transform: scale(0.96);
+    }
+
+    .result-area {
+      background: #f8fafd;
+      border-radius: 2rem;
+      padding: 1.6rem;
+      margin-top: 0.8rem;
+      text-align: center;
+      border: 1px solid #eef2f8;
+      transition: all 0.2s;
+    }
+
+    .day-badge {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: linear-gradient(125deg, #1e2b5c, #2a4177);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .full-date {
+      font-size: 1.2rem;
+      color: #2c3e66;
+      font-weight: 500;
+      margin-top: 0.4rem;
+    }
+
+    .extra-info {
+      font-size: 0.9rem;
+      color: #4b5b7a;
+      margin-top: 0.7rem;
+      border-top: 1px solid #e2edf7;
+      padding-top: 0.8rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .error-message {
+      color: #c2412a;
+      background: #fff2ef;
+      padding: 0.9rem;
+      border-radius: 1.5rem;
+      font-weight: 500;
+      margin-top: 1rem;
+      border-left: 5px solid #c2412a;
+      text-align: left;
+    }
+
+    .info-note {
+      font-size: 0.75rem;
+      text-align: center;
+      margin-top: 1.8rem;
+      color: #5f6f8a;
+      border-top: 1px solid #e9edf2;
+      padding-top: 1.2rem;
+    }
+
+    footer {
+      background: #f1f5f9;
+      padding: 0.9rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #4a5b7b;
+      border-top: 1px solid #e2e8f0;
+      font-weight: 500;
+    }
+
+    .signature {
+      font-family: monospace;
+      letter-spacing: 0.5px;
+      background: #e9edf4;
+      display: inline-block;
+      padding: 0.1rem 0.7rem;
+      border-radius: 30px;
+    }
+
+    @media (max-width: 520px) {
+      .content {
+        padding: 1.5rem;
+      }
+      .day-badge {
+        font-size: 1.8rem;
+      }
+      .hero h1 {
+        font-size: 1.5rem;
+      }
+      button {
+        width: 100%;
+        justify-content: center;
+        margin-top: 0.5rem;
+      }
+      .input-group {
+        flex-direction: column;
+        gap: 0.9rem;
+      }
+      .personal-tag {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="hero">
+    <h1>
+      📅 Day Finder
+      <span>✨</span>
+    </h1>
+    <!-- Personalized header corrected: LAKSHMIRAM MAHADEVAN (exact spelling) -->
+    <div class="personal-tag">
+      ⚡ LAKSHMIRAM MAHADEVAN ⚡
+    </div>
+    <p>Pick any date — discover the exact weekday in style</p>
+  </div>
+
+  <div class="content">
+    <div class="input-group">
+      <div class="field">
+        <label>📆 Day</label>
+        <input type="number" id="dayInput" placeholder="DD" min="1" max="31" value="15">
+      </div>
+      <div class="field">
+        <label>🗓️ Month</label>
+        <select id="monthSelect">
+          <option value="0">January</option>
+          <option value="1">February</option>
+          <option value="2">March</option>
+          <option value="3">April</option>
+          <option value="4">May</option>
+          <option value="5">June</option>
+          <option value="6">July</option>
+          <option value="7">August</option>
+          <option value="8">September</option>
+          <option value="9">October</option>
+          <option value="10">November</option>
+          <option value="11">December</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>🌟 Year</label>
+        <input type="number" id="yearInput" placeholder="YYYY" value="2026">
+      </div>
+      <button id="findDayBtn">🔍 Find day →</button>
+    </div>
+
+    <div id="resultContainer">
+      <!-- dynamic result will appear here -->
+      <div class="result-area">
+        <div class="day-badge">— 🌙 —</div>
+        <div class="full-date">Select a date and click find</div>
+        <div class="extra-info">supports Gregorian calendar (any year)</div>
+      </div>
+    </div>
+    <div class="info-note">
+      📌 Works from year 1 to 9999 (Gregorian proleptic).<br>
+      Shows the correct day of the week for any valid date.
+    </div>
+  </div>
+  <footer>
+    ✨ Day finder by LakshmiRam Mahadevan | Accurate & instant ✨
+  </footer>
+</div>
+
+<script>
+  (function() {
+    // DOM elements
+    const dayInput = document.getElementById('dayInput');
+    const monthSelect = document.getElementById('monthSelect');
+    const yearInput = document.getElementById('yearInput');
+    const findBtn = document.getElementById('findDayBtn');
+    const resultContainer = document.getElementById('resultContainer');
+
+    // Helper: format month name from numeric month (0-indexed)
+    function getMonthName(monthIndex) {
+      const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      return months[monthIndex];
+    }
+
+    // Helper: get day name from JS Date (returns full weekday)
+    function getWeekdayName(dayIndex) {
+      const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      return weekdays[dayIndex];
+    }
+
+    // main function: compute day of week from year, month (0-index), day
+    // Returns object: { success: bool, weekdayName, formattedDate, errorMsg, extraNote }
+    function computeDayOfWeek(year, monthIndex, day) {
+      // basic validation before building Date object
+      if (year === undefined || monthIndex === undefined || day === undefined) {
+        return { success: false, errorMsg: "Missing date components." };
+      }
+
+      // year validation: typically JS date works up to 100M but we keep reasonable range
+      if (isNaN(year) || isNaN(monthIndex) || isNaN(day)) {
+        return { success: false, errorMsg: "Invalid numeric values. Please enter numbers only." };
+      }
+
+      // integer check & bounds
+      if (!Number.isInteger(year) || !Number.isInteger(monthIndex) || !Number.isInteger(day)) {
+        return { success: false, errorMsg: "Please enter whole numbers for day, month and year." };
+      }
+
+      // rough year range: keep practical but JS supports ±285616, we guide 1–9999 (common)
+      if (year < 1 || year > 9999) {
+        return { success: false, errorMsg: "Year must be between 1 and 9999 (inclusive)." };
+      }
+
+      if (monthIndex < 0 || monthIndex > 11) {
+        return { success: false, errorMsg: "Month must be between 1 and 12." };
+      }
+
+      if (day < 1 || day > 31) {
+        return { success: false, errorMsg: "Day must be between 1 and 31." };
+      }
+
+      // Use JavaScript's built-in Date for robust calculation (Gregorian proleptic)
+      // Important: Date constructor treats years 0-99 as 1900-1999? but we avoid nuance by forcing year as is.
+      // For year 0–99 we want exact year. Using setFullYear method to avoid Y2K-like shifting.
+      const dateObj = new Date(year, monthIndex, day);
+      
+      // validate consistency: if date rolls over (invalid date like Feb 30)
+      // Check using getMonth() vs original month, and date value
+      const computedMonth = dateObj.getMonth();
+      const computedDate = dateObj.getDate();
+      const computedYear = dateObj.getFullYear();
+
+      // Edge case: February 30 -> JS will roll to March 2, mismatch actual day
+      // Also covers Apr 31, etc.
+      if (computedMonth !== monthIndex || computedDate !== day || computedYear !== year) {
+        // Also check special scenario: year zero etc. But we handle month lengths friendly error
+        // Provide helpful message
+        const monthLength = new Date(year, monthIndex + 1, 0).getDate();
+        return {
+          success: false,
+          errorMsg: `Invalid date: ${getMonthName(monthIndex)} ${day}, ${year} does not exist. ${getMonthName(monthIndex)} has ${monthLength} days.`
+        };
+      }
+
+      // If we passed validation, get the weekday index (0 = Sunday)
+      const weekdayIndex = dateObj.getDay();
+      const weekdayName = getWeekdayName(weekdayIndex);
+      
+      // format full display date
+      const formattedDate = `${getMonthName(monthIndex)} ${day}, ${year}`;
+      
+      // extra note for leap year? optional insight
+      const isLeap = (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0));
+      const extraNote = isLeap ? `📖 ${year} is a leap year ✨` : `📅 ${year} is a common year`;
+      
+      return {
+        success: true,
+        weekdayName: weekdayName,
+        formattedDate: formattedDate,
+        extraNote: extraNote,
+        dayIndex: weekdayIndex
+      };
+    }
+
+    // Render result to DOM with friendly dynamic style
+    function renderResult(computed) {
+      // Clear container
+      resultContainer.innerHTML = '';
+      const resultDiv = document.createElement('div');
+      
+      if (!computed.success) {
+        // error style
+        resultDiv.className = 'error-message';
+        resultDiv.innerHTML = `
+          <span style="font-weight: 700;">⚠️ Oops! ${computed.errorMsg?.includes("Invalid") ? 'Invalid Date' : 'Check inputs'}</span><br>
+          ${computed.errorMsg || 'Something went wrong. Please check your date.'}
+        `;
+        resultContainer.appendChild(resultDiv);
+        
+        // Also add minimal fallback decorative note 
+        const fallbackNote = document.createElement('div');
+        fallbackNote.className = 'info-note';
+        fallbackNote.style.marginTop = '1rem';
+        fallbackNote.style.fontSize = '0.7rem';
+        fallbackNote.innerHTML = '💡 Tip: Make sure day matches month (e.g., June 31 is invalid).';
+        resultContainer.appendChild(fallbackNote);
+        return;
+      }
+      
+      // success: display beautiful day badge
+      resultDiv.className = 'result-area';
+      resultDiv.style.animation = 'fadeSlide 0.25s ease-out';
+      // adding a subtle keyframe dynamically (we'll inject style briefly)
+      if (!document.querySelector('#dynamicAnim')) {
+        const style = document.createElement('style');
+        style.id = 'dynamicAnim';
+        style.textContent = `
+          @keyframes fadeSlide {
+            0% { opacity: 0; transform: translateY(8px); }
+            100% { opacity: 1; transform: translateY(0px); }
+          }
+          .result-area {
+            animation: fadeSlide 0.28s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      
+      // Choose an icon based on weekday mood
+      const dayLower = computed.weekdayName.toLowerCase();
+      let dayEmoji = "🌞";
+      if (dayLower.includes("saturday") || dayLower.includes("sunday")) dayEmoji = "🥳🌟";
+      else if (dayLower === "monday") dayEmoji = "📈💪";
+      else if (dayLower === "tuesday") dayEmoji = "⚡🎯";
+      else if (dayLower === "wednesday") dayEmoji = "🐫✨";
+      else if (dayLower === "thursday") dayEmoji = "⛅💫";
+      else if (dayLower === "friday") dayEmoji = "🚀🍕";
+      
+      resultDiv.innerHTML = `
+        <div class="day-badge" style="display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;">
+          <span>${computed.weekdayName}</span>
+          <span style="font-size: 2rem;">${dayEmoji}</span>
+        </div>
+        <div class="full-date">📅 ${computed.formattedDate}</div>
+        <div class="extra-info">
+          <span>🗓️ ${computed.extraNote}</span>
+          <span>🔢 Day index: ${computed.dayIndex} (Sun=0..Sat=6)</span>
+        </div>
+      `;
+      resultContainer.appendChild(resultDiv);
+      
+      // Add subtle personalized note with correct spelling
+      const inspire = document.createElement('div');
+      inspire.className = 'info-note';
+      inspire.style.marginTop = '0.8rem';
+      inspire.style.fontSize = '0.7rem';
+      inspire.innerHTML = '✨ Powered by LakshmiRam Mahadevan — Gregorian calendar magic ✨';
+      resultContainer.appendChild(inspire);
+    }
+    
+    // get current values and compute
+    function findAndDisplayDay() {
+      // Read raw values
+      let dayRaw = dayInput.value.trim();
+      let yearRaw = yearInput.value.trim();
+      let monthIdx = parseInt(monthSelect.value, 10);  // month already 0-index from select value
+      
+      // Parse day and year
+      let day = parseInt(dayRaw, 10);
+      let year = parseInt(yearRaw, 10);
+      
+      // Edge cases: empty or NaN after parse
+      if (isNaN(day)) {
+        renderResult({ success: false, errorMsg: "Day must be a valid number (1–31)." });
+        return;
+      }
+      if (isNaN(year)) {
+        renderResult({ success: false, errorMsg: "Year must be a valid number (e.g., 2024, 1066)." });
+        return;
+      }
+      
+      // additional sanity: month select always valid, monthIdx is defined
+      const result = computeDayOfWeek(year, monthIdx, day);
+      renderResult(result);
+    }
+    
+    // helper to set default to today's date? Provide nice default but keep user freedom
+    // On page load, set to current date but respecting timezone. Show a nice example:
+    function setDefaultToToday() {
+      const today = new Date();
+      let currentYear = today.getFullYear();
+      let currentMonth = today.getMonth();    // 0-index
+      let currentDay = today.getDate();
+      
+      // Set year & day, month select to current month
+      yearInput.value = currentYear;
+      dayInput.value = currentDay;
+      monthSelect.value = currentMonth.toString();
+      
+      // auto compute initial result with a warm greeting
+      const initialResult = computeDayOfWeek(currentYear, currentMonth, currentDay);
+      renderResult(initialResult);
+    }
+    
+    // event listeners
+    findBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      findAndDisplayDay();
+    });
+    
+    // also support pressing Enter on any input: convenient
+    const inputs = [dayInput, yearInput, monthSelect];
+    inputs.forEach(input => {
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          findAndDisplayDay();
+        }
+      });
+    });
+    
+    // optional: force day min/max dynamic change? not needed, error handling covers.
+    // simple extra: dynamic month day limit helper? not needed, but friendly validation on day field
+    // Add additional on the fly suggestion: when month changes we could notify via console but not needed.
+    // Also fix day <= max days in month by showing warning but we rely on validation logic
+    // Provide live trim of day input max
+    function updateDayMaxHint() {
+      const yearVal = parseInt(yearInput.value, 10);
+      const monthVal = parseInt(monthSelect.value, 10);
+      if (!isNaN(yearVal) && !isNaN(monthVal) && yearVal >= 1 && yearVal <= 9999 && monthVal >= 0 && monthVal <= 11) {
+        const daysInMonth = new Date(yearVal, monthVal + 1, 0).getDate();
+        dayInput.placeholder = `1-${daysInMonth}`;
+        dayInput.max = daysInMonth;
+        // optional: correct if current day value exceeds daysInMonth? We won't reset to avoid frustration, but compute will throw error
+        let currentDayVal = parseInt(dayInput.value, 10);
+        if (!isNaN(currentDayVal) && currentDayVal > daysInMonth) {
+          // just mild highlight but not auto-change (user sees error when clicking)
+          dayInput.style.borderColor = "#f97316";
+          setTimeout(() => {
+            if (dayInput.style.borderColor === "rgb(249, 115, 22)") dayInput.style.borderColor = "";
+          }, 1200);
+        } else {
+          dayInput.style.borderColor = "";
+        }
+      }
+    }
+    
+    yearInput.addEventListener('input', updateDayMaxHint);
+    monthSelect.addEventListener('change', updateDayMaxHint);
+    dayInput.addEventListener('input', () => { dayInput.style.borderColor = ""; });
+    
+    // initialize with today's date
+    setDefaultToToday();
+    updateDayMaxHint();
+    
+  })();
+</script>
+</body>
+</html>

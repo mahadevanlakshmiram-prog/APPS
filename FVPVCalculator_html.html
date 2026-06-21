@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>FV & PV Calculator | Lakshmiram Mahadevan</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .app-container {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            max-width: 620px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 28px 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .header .name {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 6px;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            opacity: 0.85;
+            margin-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 8px;
+            display: inline-block;
+        }
+
+        .mode-toggle {
+            display: flex;
+            background: #f1f5f9;
+            margin: 20px 24px 0 24px;
+            border-radius: 60px;
+            padding: 5px;
+            gap: 5px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            border-radius: 40px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
+        }
+
+        .mode-btn:not(.active) {
+            color: #475569;
+        }
+
+        .mode-btn:not(.active):hover {
+            background: #e2e8f0;
+        }
+
+        .content {
+            padding: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        label i {
+            margin-right: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            transition: all 0.3s;
+            font-weight: 500;
+            background: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.2);
+        }
+
+        .hint {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 5px;
+            margin-left: 5px;
+        }
+
+        .method-selector {
+            margin: 20px 0;
+        }
+
+        .method-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1e293b;
+            font-size: 0.9rem;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 100px;
+            flex-wrap: wrap;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+        .radio-group input {
+            width: auto;
+            margin: 0;
+            accent-color: #2a5298;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 16px 0 20px 0;
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(30, 60, 114, 0.4);
+        }
+
+        .result-card {
+            background: linear-gradient(145deg, #f1f5f9, #e6edf5);
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #cbd5e1;
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #475569;
+            font-weight: 700;
+        }
+
+        .main-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 12px 0;
+            word-break: break-word;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            padding: 10px 0;
+            border-top: 1px solid #cbd5e1;
+        }
+
+        .detail-label {
+            color: #475569;
+        }
+
+        .detail-value {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .interest-positive {
+            color: #059669;
+            font-weight: bold;
+        }
+
+        .error-message {
+            color: #dc2626;
+            background: #fef2f2;
+            padding: 12px;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            margin-top: 15px;
+            border-left: 4px solid #dc2626;
+        }
+
+        .footer {
+            background: #f8fafc;
+            padding: 14px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 500px) {
+            .content {
+                padding: 20px 16px;
+            }
+            .main-value {
+                font-size: 1.5rem;
+            }
+            .radio-group {
+                flex-direction: column;
+                border-radius: 20px;
+                gap: 10px;
+            }
+            .mode-toggle {
+                margin: 16px 16px 0 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <h1>⏱️ Time Value of Money</h1>
+        <div class="name">LAKSHMIRAM MAHADEVAN</div>
+        <p>Future Value | Present Value Calculator</p>
+    </div>
+
+    <div class="mode-toggle">
+        <button class="mode-btn active" id="fvModeBtn">📈 FUTURE VALUE (FV)</button>
+        <button class="mode-btn" id="pvModeBtn">📉 PRESENT VALUE (PV)</button>
+    </div>
+
+    <div class="content">
+        <!-- DYNAMIC INPUTS SECTION -->
+        <div id="inputsContainer"></div>
+
+        <div class="method-selector">
+            <div class="method-title">🔁 Interest Method</div>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="interestType" value="simple" checked> 📆 Simple Interest
+                </label>
+                <label>
+                    <input type="radio" name="interestType" value="compound"> 📈 Compound (Daily)
+                </label>
+            </div>
+        </div>
+
+        <button class="calculate-btn" id="calculateBtn">Calculate →</button>
+
+        <div id="resultArea">
+            <div class="result-card">
+                <div class="result-label" id="resultLabel">FUTURE VALUE AT MATURITY</div>
+                <div class="main-value" id="mainValue">—</div>
+                <div id="detailsContainer"></div>
+            </div>
+        </div>
+        <div id="errorMsg"></div>
+    </div>
+    <div class="footer">
+        📅 Simple: FV = P × (1 + r × days/365) &nbsp;|&nbsp;
+        🔁 PV = FV / (1 + r × days/365) <br>
+        📈 Daily Compound: FV = P × (1 + r/365)^days &nbsp;|&nbsp;
+        🔁 PV = FV / (1 + r/365)^days
+    </div>
+</div>
+
+<script>
+    // Current mode: 'fv' or 'pv'
+    let currentMode = 'fv';
+
+    // DOM elements
+    const fvModeBtn = document.getElementById('fvModeBtn');
+    const pvModeBtn = document.getElementById('pvModeBtn');
+    const inputsContainer = document.getElementById('inputsContainer');
+    const calculateBtn = document.getElementById('calculateBtn');
+    const resultLabelSpan = document.getElementById('resultLabel');
+    const mainValueSpan = document.getElementById('mainValue');
+    const detailsContainer = document.getElementById('detailsContainer');
+    const errorMsgDiv = document.getElementById('errorMsg');
+
+    // Helper functions
+    function clearError() {
+        errorMsgDiv.innerHTML = '';
+    }
+
+    function showError(message) {
+        errorMsgDiv.innerHTML = `<div class="error-message">⚠️ ${message}</div>`;
+        mainValueSpan.innerHTML = '—';
+        detailsContainer.innerHTML = '';
+    }
+
+    function formatCurrency(value) {
+        if (isNaN(value) || !isFinite(value)) return '—';
+        return value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Render input fields based on mode (FV or PV)
+    function renderInputs() {
+        if (currentMode === 'fv') {
+            inputsContainer.innerHTML = `
+                <div class="input-group">
+                    <label><i>💰</i> Principal Amount (Present Value)</label>
+                    <input type="number" id="principal" placeholder="e.g., 10000" value="10000" step="any">
+                    <div class="hint">The amount you invest today</div>
+                </div>
+                <div class="input-group">
+                    <label><i>📊</i> Annual Interest Rate (%)</label>
+                    <input type="number" id="rate" placeholder="e.g., 8.5" value="8" step="any">
+                </div>
+                <div class="input-group">
+                    <label><i>⏱️</i> Investment Period (Days)</label>
+                    <input type="number" id="days" placeholder="e.g., 90" value="90" step="1" min="1">
+                </div>
+            `;
+        } else {
+            // PV mode: inputs for Future Value, Rate, Days
+            inputsContainer.innerHTML = `
+                <div class="input-group">
+                    <label><i>🎯</i> Future Value (Maturity Amount)</label>
+                    <input type="number" id="futureValue" placeholder="e.g., 11000" value="11000" step="any">
+                    <div class="hint">Amount you want at maturity</div>
+                </div>
+                <div class="input-group">
+                    <label><i>📊</i> Annual Discount Rate (%)</label>
+                    <input type="number" id="rate" placeholder="e.g., 8.5" value="8" step="any">
+                </div>
+                <div class="input-group">
+                    <label><i>⏱️</i> Time Period (Days)</label>
+                    <input type="number" id="days" placeholder="e.g., 90" value="90" step="1" min="1">
+                </div>
+            `;
+        }
+    }
+
+    // Get values from inputs depending on mode
+    function getInputValues() {
+        if (currentMode === 'fv') {
+            const principal = parseFloat(document.getElementById('principal')?.value);
+            const ratePercent = parseFloat(document.getElementById('rate')?.value);
+            const days = parseInt(document.getElementById('days')?.value, 10);
+            return { principal, ratePercent, days };
+        } else {
+            const futureVal = parseFloat(document.getElementById('futureValue')?.value);
+            const ratePercent = parseFloat(document.getElementById('rate')?.value);
+            const days = parseInt(document.getElementById('days')?.value, 10);
+            return { futureVal, ratePercent, days };
+        }
+    }
+
+    // Core calculation logic
+    function calculate() {
+        clearError();
+
+        const interestType = document.querySelector('input[name="interestType"]:checked').value;
+        const ratePercentRaw = currentMode === 'fv' 
+            ? document.getElementById('rate')?.value 
+            : document.getElementById('rate')?.value;
+        const daysRaw = currentMode === 'fv'
+            ? document.getElementById('days')?.value
+            : document.getElementById('days')?.value;
+
+        if (!ratePercentRaw || !daysRaw) {
+            showError('Please fill in all fields.');
+            return;
+        }
+
+        const ratePercent = parseFloat(ratePercentRaw);
+        const days = parseInt(daysRaw, 10);
+
+        if (isNaN(ratePercent) || ratePercent < 0) {
+            showError('Interest/Discount rate must be zero or positive.');
+            return;
+        }
+        if (isNaN(days) || days <= 0) {
+            showError('Days must be a positive integer.');
+            return;
+        }
+        if (days > 36500) {
+            showError('Period cannot exceed 100 years (36,500 days).');
+            return;
+        }
+
+        const rateDecimal = ratePercent / 100;
+        let resultValue = 0;
+        let principalOrPV = 0;
+        let interestOrDiscount = 0;
+        let years = days / 365;
+
+        if (currentMode === 'fv') {
+            // FUTURE VALUE calculation
+            const principalRaw = document.getElementById('principal')?.value;
+            if (!principalRaw) {
+                showError('Please enter Principal amount.');
+                return;
+            }
+            const principal = parseFloat(principalRaw);
+            if (isNaN(principal) || principal <= 0) {
+                showError('Principal must be a positive number.');
+                return;
+            }
+            if (principal > 1e12) {
+                showError('Principal amount too large.');
+                return;
+            }
+
+            principalOrPV = principal;
+
+            if (interestType === 'simple') {
+                resultValue = principal * (1 + rateDecimal * years);
+            } else {
+                const dailyRate = rateDecimal / 365;
+                resultValue = principal * Math.pow(1 + dailyRate, days);
+            }
+            interestOrDiscount = resultValue - principal;
+            
+            // Update result UI
+            resultLabelSpan.innerHTML = '📈 FUTURE VALUE AT MATURITY';
+            mainValueSpan.innerHTML = formatCurrency(resultValue);
+            detailsContainer.innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">💰 Principal (Today)</span>
+                    <span class="detail-value">${formatCurrency(principal)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">✨ Total Interest Earned</span>
+                    <span class="detail-value interest-positive">+ ${formatCurrency(interestOrDiscount)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">📅 Period</span>
+                    <span class="detail-value">${days} day${days !== 1 ? 's' : ''} (${years.toFixed(4)} years)</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">📊 Interest Rate</span>
+                    <span class="detail-value">${ratePercent}% p.a. (${interestType === 'simple' ? 'Simple' : 'Daily Compound'})</span>
+                </div>
+            `;
+        } 
+        else {
+            // PRESENT VALUE calculation
+            const futureValRaw = document.getElementById('futureValue')?.value;
+            if (!futureValRaw) {
+                showError('Please enter Future Value.');
+                return;
+            }
+            const futureVal = parseFloat(futureValRaw);
+            if (isNaN(futureVal) || futureVal <= 0) {
+                showError('Future Value must be a positive number.');
+                return;
+            }
+            if (futureVal > 1e12) {
+                showError('Future Value too large.');
+                return;
+            }
+
+            if (interestType === 'simple') {
+                resultValue = futureVal / (1 + rateDecimal * years);
+            } else {
+                const dailyRate = rateDecimal / 365;
+                resultValue = futureVal / Math.pow(1 + dailyRate, days);
+            }
+            
+            interestOrDiscount = futureVal - resultValue;  // discount amount
+            principalOrPV = resultValue;
+
+            resultLabelSpan.innerHTML = '📉 PRESENT VALUE TODAY';
+            mainValueSpan.innerHTML = formatCurrency(resultValue);
+            detailsContainer.innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">🎯 Future Value (Maturity)</span>
+                    <span class="detail-value">${formatCurrency(futureVal)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">💸 Total Discount</span>
+                    <span class="detail-value interest-positive">${formatCurrency(interestOrDiscount)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">⏳ Time Until Maturity</span>
+                    <span class="detail-value">${days} day${days !== 1 ? 's' : ''} (${years.toFixed(4)} years)</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">📉 Discount Rate</span>
+                    <span class="detail-value">${ratePercent}% p.a. (${interestType === 'simple' ? 'Simple' : 'Daily Compound'})</span>
+                </div>
+            `;
+        }
+    }
+
+    // Switch mode and re-render + recalc
+    function switchToFv() {
+        currentMode = 'fv';
+        fvModeBtn.classList.add('active');
+        pvModeBtn.classList.remove('active');
+        renderInputs();
+        calculate();
+    }
+
+    function switchToPv() {
+        currentMode = 'pv';
+        pvModeBtn.classList.add('active');
+        fvModeBtn.classList.remove('active');
+        renderInputs();
+        calculate();
+    }
+
+    // Event listeners
+    fvModeBtn.addEventListener('click', switchToFv);
+    pvModeBtn.addEventListener('click', switchToPv);
+    calculateBtn.addEventListener('click', calculate);
+
+    // When interest method toggles, re-calculate
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.type === 'radio' && e.target.name === 'interestType') {
+            calculate();
+        }
+    });
+
+    // Delegate input changes (dynamic inputs)
+    inputsContainer.addEventListener('input', function(e) {
+        if (e.target && (e.target.type === 'number' || e.target.tagName === 'INPUT')) {
+            calculate();
+        }
+    });
+
+    // Initial render
+    renderInputs();
+    calculate();
+</script>
+</body>
+</html>
