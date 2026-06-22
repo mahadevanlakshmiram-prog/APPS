@@ -1,74 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Apps</title>
-<style>
-  body {
-    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    background: #f4f4f7;
-    margin: 0;
-    padding: 40px 20px;
-    display: flex;
-    justify-content: center;
-  }
-  .container {
-    max-width: 480px;
-    width: 100%;
-  }
-  h1 {
-    text-align: center;
-    color: #2c2c34;
-    margin-bottom: 30px;
-  }
-  .app-link {
-    display: block;
-    background: #ffffff;
-    border: 1px solid #e2e2e8;
-    border-radius: 12px;
-    padding: 18px 20px;
-    margin-bottom: 14px;
-    text-decoration: none;
-    color: #2c2c34;
-    font-size: 17px;
-    font-weight: 500;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  }
-  .app-link:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-  }
-  .footer-note {
-    text-align: center;
-    color: #999;
-    font-size: 13px;
-    margin-top: 30px;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>Simple Tagline Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #fafafa;
+    }
+    h2 { text-align: center; }
+    label { font-weight: bold; margin-top: 15px; display: block; }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      font-size: 15px;
+    }
+    button {
+      background: #0067c0;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    #output {
+      margin-top: 25px;
+      background: white;
+      padding: 15px;
+      border-radius: 5px;
+      min-height: 120px;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
+
 <body>
-  <div class="container">
-    <h1>My Apps</h1>
+  <h2>Tagline Generator</h2>
 
-    <a class="app-link" href="RETIREMENT_PLANNER.html">📊 Retirement Planner</a>
-    <a class="app-link" href="HAIKU%20Note%20Pad%20for%2052%20weeks.html">📝 Haiku Note Pad (52 weeks)</a>
-    <a class="app-link" href="INSPIRING%20QUOTESdeepseek_html_20260516_e01fd7.html">✨ Inspiring Quotes</a>
-    <a class="app-link" href="BODYMASSINDEX_html.html">⚖️ Body Mass Index</a>
-    <a class="app-link" href="word-explorer-300.html">🔤 Word Explorer</a>
-    <a class="app-link" href="Caloriecalculator.html">🔥 Calorie Calculator</a>
-    <a class="app-link" href="DAYFINDER_html.html">📅 Day Finder</a>
-    <a class="app-link" href="DICTIONARY.html">📖 Dictionary</a>
-    <a class="app-link" href="FVPVCalculator_html.html">💰 FV/PV Calculator</a>
-    <a class="app-link" href="INDIANCITIESDISTANCES_html.html">🗺️ Indian Cities Distances</a>
-    <a class="app-link" href="UNITCONVERTER_html.html">📏 Unit Converter</a>
-    <a class="app-link" href="YUANRUPEE.HTML">💱 Yuan to Rupee</a>
-    <a class="app-link" href="dailytemperature.html">🌡️ Daily Temperature</a>
-    <a class="app-link" href="rainchances.html">🌧️ Rain Chances</a>
-    <a class="app-link" href="random_wikipedia.html">🌐 Random Wikipedia</a>
+  <label>Brand Name</label>
+  <input id="brand" placeholder="e.g., Sunrise Foods">
 
-    <p class="footer-note">Tap any app above to open it.</p>
-  </div>
+  <label>Current Tagline (optional)</label>
+  <input id="tagline" placeholder="e.g., Freshness Every Day">
+
+  <button onclick="generate()">Generate</button>
+
+  <div id="output"></div>
+
+  <script>
+    async function generate() {
+      const brand = document.getElementById('brand').value.trim();
+      const tagline = document.getElementById('tagline').value.trim();
+      const output = document.getElementById('output');
+
+      if (!brand) {
+        alert("Please enter a brand name");
+        return;
+      }
+
+      const prompt = `
+Generate slogans for this brand.
+
+Brand Name: ${brand}
+Current Tagline: ${tagline || "None"}
+
+Output:
+- Brand Essence (2 lines)
+- 10 New Taglines
+- 5 Short Taglines (2–3 words)
+- Tone Variants: Premium, Youthful, Bold, Humorous, Minimalist
+- Best Pick + Rationale
+`;
+
+      output.textContent = "Generating…";
+
+      const response = await window.copilot.invoke("chat", { prompt });
+      output.textContent = response;
+    }
+  </script>
 </body>
 </html>
